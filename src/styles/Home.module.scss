@@ -1,0 +1,64 @@
+.container{
+  color: red;
+
+  h1{
+    front-size: 100px;
+    color: blue
+  }
+}
+
+.containerCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--gray-900);
+}
+
+.title {
+  color: #32634b; /* Troque pela cor desejada */
+  margin-bottom: 30px; /* Ajuste conforme necessário */
+}
+
+.login {
+  margin-top: 2rem; /* Ajuste conforme necessário */
+  width: 600px; /* Certifique-se de que a largura é 100% para o alinhamento correto */
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 2rem 1.5rem; 
+
+  h2{
+    color: var(--white);
+    padding-bottom: column;   
+    margin-top: -20px; 
+    margin-bottom: 20px;
+  }
+
+  form{
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  form button{
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+}
+
+.text{
+  margin-top: 1rem;
+  color: var(--white);
+  cursor: pointer;
+}
+
+@media (max-width: 620px){
+  .login{
+    width: 90%;
+  }
+}
