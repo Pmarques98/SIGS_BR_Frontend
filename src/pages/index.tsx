@@ -21,12 +21,22 @@ export default function Home() {
   async function handleLogin(event: FormEvent){
 
     event?.preventDefault();
+
+    //verificar se o usuario mandou algo na pagina de login
+    if(email === '' || password === ''){
+      alert("É preciso preencher seus dados")
+      return;
+    }
+
+    setLoading(true);
   
-   let data = {
-      email,
-      password      
-   }
-   await signIn(data)
+    let data = {
+        email,
+        password      
+    }
+    await signIn(data)
+
+    setLoading(false);
   }
   
 
@@ -60,14 +70,14 @@ export default function Home() {
 
           <Button
             type="submit"
-            loading={false}
+            loading={loading}
           >
             Acessar
-            </Button>
+          </Button>
 
           </form>
 
-            <Link href="/cadastro" legacyBehavior>
+            <Link href="/signup" legacyBehavior>
               <a className={styles.text}>Não possui uma conta? Cadastre-se</a>
             </Link>
 
