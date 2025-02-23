@@ -18,7 +18,7 @@
 
 .title {
   color: #32634b; /* Troque pela cor desejada */
-  margin-bottom: 30px; /* Ajuste conforme necessário */
+  margin-bottom: 40px; /* Ajuste conforme necessário */
 }
 
 .login {
@@ -61,4 +61,13 @@
   .login{
     width: 90%;
   }
+}
+
+.labelText {
+  color: var(--white);
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 10rem; 
 }

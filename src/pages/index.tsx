@@ -77,7 +77,7 @@ export default function Home() {
 
           </form>
 
-            <Link href="/signup" legacyBehavior>
+            <Link href="/signup/signupType" legacyBehavior>
               <a className={styles.text}>Não possui uma conta? Cadastre-se</a>
             </Link>
 
