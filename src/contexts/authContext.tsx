@@ -9,6 +9,7 @@ type AuthContextData = {
   signIn: (credentials: SignInProps) => Promise<void>;
   signOut: () => void;
   signUp: (credentials: SignUpProps) => Promise<void>;
+  signUpPsychologist: (credentials: SignUpPsychologistProps) => Promise<void>;
 };
 
 type UserProps = {
@@ -32,6 +33,14 @@ type SignUpProps = {
   password: string;
   gravity: 'leve' | 'moderado' | 'grave' | 'emergencial'; // Adicionando o campo gravity
 };
+
+type SignUpPsychologistProps = {
+  name: string;
+  email: string;
+  password: string;
+  cellphone_number: string;
+};
+
 
 export const AuthContext = createContext({} as AuthContextData);
 
@@ -76,30 +85,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       console.log(response.data);
     } catch (erro) {
-      console.log('Erro ao tentar o acesso', erro);
+      console.log('Email ou senha invalidos');
+      throw erro;
     }
   }
 
   // função de cadastro
   async function signUp({ name, email, password, gravity }: SignUpProps) {
     try {
-      const response = await api.post('/cadastro', {
+      const response = await api.post('/cadastro/usuario', {
         name,
         email,
         password,
-        gravity, // Adicionando o campo gravity na request
+        gravity, 
       });
       console.log('Cadastro concluido');
 
       Router.push('/');
     } catch (erro) {
-      console.log('erro ao cadastrar', erro);
+      console.log('Email ja cadastrado');
+      throw erro;
+    }
+  }
+
+  async function signUpPsychologist({ name, email, password, cellphone_number }: SignUpPsychologistProps) {
+    try {
+      const response = await api.post('/cadastro/psicologo', {
+        name,
+        email,
+        password,
+        cellphone_number, 
+      });
+      console.log('Cadastro concluido');
+
+      Router.push('/');
+    } catch (erro) {
+      console.log('Email ja cadastrado');
+      throw erro; 
     }
   }
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, signIn, signOut, signUp }}
+      value={{ user, isAuthenticated, signIn, signOut, signUp, signUpPsychologist }}
     >
       {children}
     </AuthContext.Provider>

@@ -34,9 +34,17 @@ export default function Home() {
         email,
         password      
     }
-    await signIn(data)
 
-    setLoading(false);
+    try {
+      await signIn(data);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert('Email ou senha invalidos');
+      } else {
+      }
+    } finally {
+      setLoading(false);
+    }
   }
   
 

@@ -36,9 +36,16 @@ export default function Home() {
       gravity // Corrigido para usar a chave correta
     };
 
-    await signUp(data);
-
-    setLoading(false);
+    try {
+      await signUp(data);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert('Email ja cadastrado');
+      } else {
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

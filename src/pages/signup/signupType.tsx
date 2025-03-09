@@ -8,9 +8,9 @@ export default function SignupType() {
 
   const handleSelectType = (type: 'paciente' | 'psicologo') => {
     if (type === 'paciente') {
-      router.push('/signup');
+      router.push('/signup/user');
     } else {
-      router.push(`/signup/psicologo`);
+      router.push(`/signup/psychologist`);
     }
   };
 
