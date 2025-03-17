@@ -65,7 +65,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password,
       });
 
-      const { id, name, token } = response.data;
+      const { id, name, token, isUser } = response.data;
       setCookie(undefined, '@sistemasaude.token', token, {
         maxAge: 60 * 24 * 60 * 20, // expira em 20 dias
         path: '/',
@@ -80,8 +80,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Definir o token passado para todas as requisições
       api.defaults.headers['Authorization'] = `Bearer ${token}`;
 
-      // Direciona o usuario para o /dashboard
-      Router.push('/dashboard');
+      // Direciona o usuario para o dashboard apropriado com o email na URL
+      if (isUser) {
+        Router.push(`/dashboard/dashboardUser?email=${email}`);
+      } else {
+        Router.push(`/dashboard/dashboardPsychologist?email=${email}`);
+      }
 
       console.log(response.data);
     } catch (erro) {
