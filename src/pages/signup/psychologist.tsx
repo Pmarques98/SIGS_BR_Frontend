@@ -15,15 +15,22 @@ export default function Home() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [cellphone_number, setCellphone] = useState('');;
+  const [cellphone_number, setCellphone] = useState('');
 
   async function signUpHandlePsychologist(event: FormEvent) {
     event.preventDefault();
 
-    if (name === '' || email === '' || password === '' || cellphone_number === '') {
+    if (name === '' || email === '' || password === '' || cellphone_number === '' || cpf === '') {
       alert('É necessário preencher todos os campos');
+      return;
+    }
+
+    // validar se o CPF tem 11 dígitos
+    if (cpf.length !== 11) {
+      alert('O CPF deve ter 11 dígitos');
       return;
     }
 
@@ -40,6 +47,7 @@ export default function Home() {
       name,
       email,
       password,
+      cpf,
       cellphone_number // Corrigido para usar a chave correta
     };
 
@@ -47,8 +55,9 @@ export default function Home() {
       await signUpPsychologist(data);
     } catch (error) {
       if (error instanceof Error) {
-        alert('Email ja cadastrado');
+        alert('CPF já cadastrado');
       } else {
+        alert('Erro desconhecido');
       }
     } finally {
       setLoading(false);
@@ -82,6 +91,13 @@ export default function Home() {
               type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              placeholder="Digite seu cpf (ex: 12345678900)"
+              type="text"
+              value={cpf}
+              maxLength={11} // limitar a 11 caracteres
+              onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))} // remover caracteres não numéricos
             />
             <Input
               placeholder="Digite sua senha"

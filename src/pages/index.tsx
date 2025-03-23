@@ -1,97 +1,95 @@
-import { FormEvent, useContext, useState } from 'react'
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.scss'
+import { FormEvent, useContext, useState } from 'react';
+import Head from 'next/head';
+import Image from 'next/image';
+import styles from '../styles/Home.module.scss';
 
-import logoImg from '../../public/cuidar.png'
-import { Input } from '../components/ui/input'
-import { Button } from '../components/ui/Button'
+import logoImg from '../../public/cuidar.png';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/Button';
 
-import { AuthContext } from '@/contexts/authContext'
+import { AuthContext } from '@/contexts/authContext';
 
 import Link from 'next/link';
 
 export default function Home() {
-  const { signIn } = useContext(AuthContext)
+  const { signIn } = useContext(AuthContext);
 
-  const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleLogin(event: FormEvent){
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
 
-    event?.preventDefault();
+    // verificar se o usuario mandou algo na pagina de login
+    if (password === '' || cpf === '') {
+      alert('É preciso preencher seus dados');
+      return;
+    }
 
-    //verificar se o usuario mandou algo na pagina de login
-    if(email === '' || password === ''){
-      alert("É preciso preencher seus dados")
+    // validar se o CPF tem 11 dígitos
+    if (cpf.length !== 11) {
+      alert('O CPF deve ter 11 dígitos');
       return;
     }
 
     setLoading(true);
-  
+
     let data = {
-        email,
-        password      
-    }
+      cpf,
+      password,
+    };
 
     try {
       await signIn(data);
     } catch (error) {
       if (error instanceof Error) {
         alert('Email ou senha invalidos');
-      } else {
       }
     } finally {
       setLoading(false);
     }
   }
-  
 
   return (
     <>
-    <Head>
-      <title> SIGS_BR - Faça seu login</title>
-    </Head>
-    <div className= {styles.containerCenter}>
-      <Image src={logoImg} 
-          alt="Logo SIGS_BR" 
-          width={150}  // ajuste conforme necessário
+      <Head>
+        <title> SIGS_BR - Faça seu login</title>
+      </Head>
+      <div className={styles.containerCenter}>
+        <Image
+          src={logoImg}
+          alt="Logo SIGS_BR"
+          width={150} // ajuste conforme necessário
           height={150} // ajuste conforme necessário
-          />
-      <div className={styles.login}>
-        <h1 className={styles.title}>SIGS_BR</h1> {/*SIGS_BR*/}
-        <h2>Login</h2>
-         <form onSubmit={handleLogin}>
-          <Input
-            placeholder="Digite seu email"
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            placeholder="Digite sua senha"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <Button
-            type="submit"
-            loading={loading}
-          >
-            Acessar
-          </Button>
-
+        />
+        <div className={styles.login}>
+          <h1 className={styles.title}>SIGS_BR</h1> {/*SIGS_BR*/}
+          <h2>Login</h2>
+          <form onSubmit={handleLogin}>
+            <Input
+              placeholder="Digite seu cpf (ex: 12345678900)"
+              type="text"
+              value={cpf}
+              maxLength={11} // limitar a 11 caracteres
+              onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))} // remover caracteres não numéricos
+            />
+            <Input
+              placeholder="Digite sua senha"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button type="submit" loading={loading}>
+              Acessar
+            </Button>
           </form>
 
-            <Link href="/signup/signupType" legacyBehavior>
-              <a className={styles.text}>Não possui uma conta? Cadastre-se</a>
-            </Link>
-
+          <Link href="/signup/signupType" legacyBehavior>
+            <a className={styles.text}>Não possui uma conta? Cadastre-se</a>
+          </Link>
         </div>
-    </div>
-
+      </div>
     </>
   );
 }

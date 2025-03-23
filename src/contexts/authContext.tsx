@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useState } from 'react';
-import { destroyCookie, setCookie, parseCookies } from 'nookies';
+import { destroyCookie, setCookie } from 'nookies';
 import Router from 'next/router';
 import { api } from '../services/apiClient';
 
@@ -15,11 +15,11 @@ type AuthContextData = {
 type UserProps = {
   id: string;
   name: string;
-  email: string;
+  cpf: string;
 };
 
 type SignInProps = {
-  email: string;
+  cpf: string;
   password: string;
 };
 
@@ -30,17 +30,17 @@ type AuthProviderProps = {
 type SignUpProps = {
   name: string;
   email: string;
+  cpf: string;
   password: string;
-  gravity: 'leve' | 'moderado' | 'grave' | 'emergencial'; // Adicionando o campo gravity
 };
 
 type SignUpPsychologistProps = {
   name: string;
   email: string;
   password: string;
+  cpf: string;
   cellphone_number: string;
 };
-
 
 export const AuthContext = createContext({} as AuthContextData);
 
@@ -58,10 +58,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAuthenticated = !!user;
 
   // função de login
-  async function signIn({ email, password }: SignInProps) {
+  async function signIn({ cpf, password }: SignInProps) {
     try {
       const response = await api.post('/login', {
-        email,
+        cpf,
         password,
       });
 
@@ -74,57 +74,58 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser({
         id,
         name,
-        email,
+        cpf,
       });
 
       // Definir o token passado para todas as requisições
       api.defaults.headers['Authorization'] = `Bearer ${token}`;
 
-      // Direciona o usuario para o dashboard apropriado com o email na URL
+      // Direciona o usuario para o dashboard apropriado com o cpf na URL
       if (isUser) {
-        Router.push(`/dashboard/dashboardUser?email=${email}`);
+        Router.push(`/dashboard/dashboardUser?cpf=${cpf}`);
       } else {
-        Router.push(`/dashboard/dashboardPsychologist?email=${email}`);
+        Router.push(`/dashboard/dashboardPsychologist?cpf=${cpf}`);
       }
 
       console.log(response.data);
     } catch (erro) {
-      console.log('Email ou senha invalidos');
+      console.log('CPF ou senha inválidos');
       throw erro;
     }
   }
 
   // função de cadastro
-  async function signUp({ name, email, password, gravity }: SignUpProps) {
+  async function signUp({ name, email, password, cpf }: SignUpProps) {
     try {
       const response = await api.post('/cadastro/usuario', {
         name,
         email,
         password,
-        gravity, 
+        cpf, 
       });
-      console.log('Cadastro concluido');
+      console.log('Cadastro concluído');
 
       Router.push('/');
     } catch (erro) {
-      console.log('Email ja cadastrado');
+      console.log('Email já cadastrado');
       throw erro;
     }
   }
 
-  async function signUpPsychologist({ name, email, password, cellphone_number }: SignUpPsychologistProps) {
+  async function signUpPsychologist({ name, email, password, cpf, cellphone_number }: SignUpPsychologistProps) {
     try {
       const response = await api.post('/cadastro/psicologo', {
         name,
         email,
         password,
+        cpf,
         cellphone_number, 
       });
-      console.log('Cadastro concluido');
+      console.log('Cadastro concluído');
 
       Router.push('/');
     } catch (erro) {
-      console.log('Email ja cadastrado');
+      console.log('Email já cadastrado');
       throw erro; 
     }
   }

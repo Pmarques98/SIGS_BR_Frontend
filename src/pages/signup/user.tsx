@@ -15,15 +15,21 @@ export default function Home() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [gravity, setGravity] = useState<'leve' | 'moderado' | 'grave' | 'emergencial'>('leve');
 
   async function signUpHandle(event: FormEvent) {
     event.preventDefault();
 
-    if (name === '' || email === '' || password === '') {
+    if (name === '' || email === '' || password === '' || cpf === '') {
       alert('É necessário preencher todos os campos');
+      return;
+    }
+
+    // validar se o CPF tem 11 dígitos
+    if (cpf.length !== 11) {
+      alert('O CPF deve ter 11 dígitos');
       return;
     }
 
@@ -32,16 +38,17 @@ export default function Home() {
     let data = {
       name,
       email,
+      cpf,
       password,
-      gravity // Corrigido para usar a chave correta
     };
 
     try {
       await signUp(data);
     } catch (error) {
       if (error instanceof Error) {
-        alert('Email ja cadastrado');
+        alert('CPF já cadastrado');
       } else {
+        alert('Erro desconhecido');
       }
     } finally {
       setLoading(false);
@@ -61,7 +68,7 @@ export default function Home() {
           height={150} // ajuste conforme necessário
         />
         <div className={styles.login}>
-          <h1 className={styles.title}>SIGS_BR</h1> {/*SIGS_BR*/}
+          <h1 className={styles.title}>SIGS_BR</h1> 
           <h2>Criando sua conta</h2>
           <form onSubmit={signUpHandle}>
             <Input
@@ -77,21 +84,18 @@ export default function Home() {
               onChange={(e) => setEmail(e.target.value)}
             />
             <Input
+              placeholder="Digite seu cpf (ex: 12345678900)"
+              type="text"
+              value={cpf}
+              maxLength={11} // limitar a 11 caracteres
+              onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))} // remover caracteres não numéricos
+            />
+            <Input
               placeholder="Digite sua senha"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <p className={styles.labelText}>Qual a gravidade de seus problemas?</p>
-            <select
-              value={gravity}
-              onChange={(e) => setGravity(e.target.value as 'leve' | 'moderado' | 'grave' | 'emergencial')}
-            >
-              <option value="leve">Leve</option>
-              <option value="moderado">Moderado</option>
-              <option value="grave">Grave</option>
-              <option value="emergencial">Emergencial</option>
-            </select>
             <Button type="submit" loading={loading}>
               Cadastro
             </Button>
