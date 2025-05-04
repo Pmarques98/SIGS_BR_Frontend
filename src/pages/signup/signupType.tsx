@@ -6,11 +6,15 @@ import { Button } from '../../components/ui/Button';
 export default function SignupType() {
   const router = useRouter();
 
-  const handleSelectType = (type: 'paciente' | 'psicologo') => {
-    if (type === 'paciente') {
+  const handleSelectType = (type: 'paciente' | 'psicologo' | 'responsavel') => {
+    if (type === 'responsavel') {
       router.push('/signup/user');
-    } else {
+    }
+    else if(type === 'psicologo') {
       router.push(`/signup/psychologist`);
+    }
+    else {
+      router.push('/signup/patient');
     }
   };
 
@@ -24,8 +28,9 @@ export default function SignupType() {
           <h1 className={styles.title}>SIGS_BR</h1>
           <h2>Qual acesso gostaria de ter?</h2>
           <div className={styles.buttonContainer}>
-            <Button onClick={() => handleSelectType('paciente')}>Paciente</Button>
+            <Button onClick={() => handleSelectType('responsavel')}>Responsável</Button>
             <Button onClick={() => handleSelectType('psicologo')}>Psicologo</Button>
+            <Button onClick={() => handleSelectType('paciente')}>Paciente</Button>
           </div>
         </div>
       </div>

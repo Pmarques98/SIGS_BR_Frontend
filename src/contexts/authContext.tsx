@@ -10,6 +10,7 @@ type AuthContextData = {
   signOut: () => void;
   signUp: (credentials: SignUpProps) => Promise<void>;
   signUpPsychologist: (credentials: SignUpPsychologistProps) => Promise<void>;
+  signUpPatient: (credentials: signUpPatientProps) => Promise<void>;
 };
 
 type UserProps = {
@@ -40,6 +41,13 @@ type SignUpPsychologistProps = {
   password: string;
   cpf: string;
   cellphone_number: string;
+};
+
+type signUpPatientProps = {
+  cpf_patient : String,
+  cpf_advisor : String,
+  cellphone_advisor : String,
+  name_patient : String,
 };
 
 export const AuthContext = createContext({} as AuthContextData);
@@ -130,9 +138,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  async function signUpPatient({ cpf_patient, cpf_advisor, cellphone_advisor, name_patient }: signUpPatientProps) {
+    try {
+      const response = await api.post('/cadastro/crianca', {
+        cpf_patient,
+        cpf_advisor,
+        cellphone_advisor,
+        name_patient
+      });
+      console.log('Cadastro concluído');
+
+      Router.push('/');
+    } catch (erro) {
+      console.log('Email já cadastrado');
+      throw erro; 
+    }
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, signIn, signOut, signUp, signUpPsychologist }}
+      value={{ user, isAuthenticated, signIn, signOut, signUp, signUpPsychologist, signUpPatient }}
     >
       {children}
     </AuthContext.Provider>
