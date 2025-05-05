@@ -21,11 +21,11 @@ export default function SignupType() {
   return (
     <>
       <Head>
-        <title> SIGS_BR - Escolha seu tipo de acesso</title>
+        <title> POAP - Escolha seu tipo de acesso</title>
       </Head>
       <div className={styles.containerCenter}>
         <div className={styles.login}>
-          <h1 className={styles.title}>SIGS_BR</h1>
+          <h1 className={styles.title}>POAP</h1>
           <h2>Qual acesso gostaria de ter?</h2>
           <div className={styles.buttonContainer}>
             <Button onClick={() => handleSelectType('responsavel')}>Responsável</Button>

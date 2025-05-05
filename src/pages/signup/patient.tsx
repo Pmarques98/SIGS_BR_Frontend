@@ -71,7 +71,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title> SIGS_BR - Faça seu cadastro agora!</title>
+        <title> POAP - Faça seu cadastro agora!</title>
       </Head>
       <div className={styles.containerCenter}>
         <Image
@@ -81,7 +81,7 @@ export default function Home() {
           height={150} // ajuste conforme necessário
         />
         <div className={styles.login}>
-          <h1 className={styles.title}>SIGS_BR</h1> 
+          <h1 className={styles.title}>POAP</h1> 
           <h2>Criando sua conta</h2>
           <form onSubmit={signUpPatientHandle}>
             <Input

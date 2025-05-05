@@ -54,17 +54,17 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title> SIGS_BR - Faça seu login</title>
+        <title> POAP - Faça seu login</title>
       </Head>
       <div className={styles.containerCenter}>
         <Image
           src={logoImg}
-          alt="Logo SIGS_BR"
+          alt="Logo POAP"
           width={150} // ajuste conforme necessário
           height={150} // ajuste conforme necessário
         />
         <div className={styles.login}>
-          <h1 className={styles.title}>SIGS_BR</h1> {/*SIGS_BR*/}
+          <h1 className={styles.title}>POAP</h1> {/*SIGS_BR*/}
           <h2>Login</h2>
           <form onSubmit={handleLogin}>
             <Input
