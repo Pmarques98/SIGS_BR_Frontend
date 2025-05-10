@@ -11,8 +11,6 @@ export default function DashboardPsychologist() {
   const [loading, setLoading] = useState(false);
 
   // Estados para aceitar consulta
-  const [acceptId, setAcceptId] = useState('');
-  const [acceptCpfPsychologist, setAcceptCpfPsychologist] = useState('');
   const [acceptLoading, setAcceptLoading] = useState(false);
   const [acceptResponse, setAcceptResponse] = useState<string | null>(null);
 
@@ -48,22 +46,21 @@ export default function DashboardPsychologist() {
     setLoading(false);
   }
 
-  async function handleAcceptConsultation(e: React.FormEvent) {
-    e.preventDefault();
+  // Aceitar consulta direto na listagem
+  async function handleAcceptConsultation(consultationId: number) {
     setAcceptLoading(true);
     setAcceptResponse(null);
     try {
       const api = setAPIClient();
       const response = await api.post('/consulta/aceitar', {
-        id: Number(acceptId),
-        cpf_psychologist: acceptCpfPsychologist,
+        id: consultationId,
+        cpf_psychologist: cpfPsychologist,
       });
       if (response.data && response.data.message) {
         setAcceptResponse(response.data.message);
       } else {
         setAcceptResponse('Consulta aceita com sucesso!');
       }
-      setAcceptId('');
       handleListConsultations();
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.error) {
@@ -167,31 +164,17 @@ export default function DashboardPsychologist() {
             <strong>CPF Paciente:</strong> {item.cpf_paciente}<br />
             <strong>Data:</strong> {item.data_consultation}<br />
             <strong>Link:</strong> <a href={item.link_meets} target="_blank" rel="noopener noreferrer">{item.link_meets}</a><br />
+            <button
+              onClick={() => handleAcceptConsultation(item.id)}
+              disabled={acceptLoading}
+              style={{ marginTop: 8 }}
+            >
+              {acceptLoading ? 'Aceitando...' : 'Aceitar consulta'}
+            </button>
             <hr />
           </li>
         ))}
       </ul>
-
-      <h2>Aceitar consulta</h2>
-      <form onSubmit={handleAcceptConsultation}>
-        <input
-          placeholder="ID da consulta"
-          value={acceptId}
-          onChange={e => setAcceptId(e.target.value)}
-          type="number"
-          min="1"
-          required
-        />
-        <input
-          placeholder="CPF do psicólogo"
-          value={acceptCpfPsychologist}
-          onChange={e => setAcceptCpfPsychologist(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={acceptLoading || !acceptId || !acceptCpfPsychologist}>
-          {acceptLoading ? 'Aceitando...' : 'Aceitar consulta'}
-        </button>
-      </form>
       {acceptResponse && (
         <div style={{ marginTop: 10, color: acceptResponse.toLowerCase().includes('erro') ? 'red' : 'green' }}>
           {acceptResponse}
