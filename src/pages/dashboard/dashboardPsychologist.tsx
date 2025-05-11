@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { setAPIClient } from '../../services/apiBuilder';
 
 export default function DashboardPsychologist() {
@@ -7,6 +7,12 @@ export default function DashboardPsychologist() {
   const { cpf } = router.query;
 
   const [cpfPsychologist, setCpfPsychologist] = useState('');
+  // Preenche automaticamente o CPF do psicólogo com o CPF da conta
+  useEffect(() => {
+    if (cpf) {
+      setCpfPsychologist(cpf as string);
+    }
+  }, [cpf]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +36,7 @@ export default function DashboardPsychologist() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportResponse, setReportResponse] = useState<string | null>(null);
   const [reportResult, setReportResult] = useState<any | null>(null);
+
 
   async function handleListConsultations() {
     setLoading(true);

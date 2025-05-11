@@ -10,6 +10,7 @@ export default function DashboardUser() {
   const [cpfPaciente, setCpfPaciente] = useState('');
   const [dataConsultation, setDataConsultation] = useState('');
   const [myConsultations, setMyConsultations] = useState<any[]>([]);
+  const [children, setChildren] = useState<any[]>([]); // Estado para armazenar a lista de crianças
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
 
@@ -36,9 +37,11 @@ export default function DashboardUser() {
       if (response.data && response.data.error) {
         setResponseMessage(response.data.error);
         setMyConsultations([]);
+        setChildren([]); // Limpa a lista de crianças em caso de erro
         setUpcoming({ isUpcoming: false, link_meets: null });
       } else {
         setMyConsultations(Array.isArray(response.data.consultations) ? response.data.consultations : []);
+        setChildren(Array.isArray(response.data.children) ? response.data.children : []); // Define a lista de crianças
         if (response.data.upcomingConsultation) {
           setUpcoming({
             isUpcoming: !!response.data.upcomingConsultation.isUpcoming,
@@ -51,6 +54,7 @@ export default function DashboardUser() {
     } catch (err: any) {
       setResponseMessage('Erro ao buscar suas consultas');
       setMyConsultations([]);
+      setChildren([]); // Limpa a lista de crianças em caso de erro
       setUpcoming({ isUpcoming: false, link_meets: null });
     }
     setLoading(false);
@@ -59,12 +63,11 @@ export default function DashboardUser() {
   // Polling para upcomingConsultation
   useEffect(() => {
     if (!cpf) return;
-    fetchConsultationsAndUpcoming(); // busca inicial
-    pollingRef.current = setInterval(fetchConsultationsAndUpcoming, 10000); // a cada 10s
+    fetchConsultationsAndUpcoming(); // Busca inicial
+    pollingRef.current = setInterval(fetchConsultationsAndUpcoming, 10000); // A cada 10s
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
-    // eslint-disable-next-line
   }, [cpf]);
 
   async function handleCreateConsultation(e: React.FormEvent) {
@@ -167,6 +170,30 @@ export default function DashboardUser() {
         />
         <button type="submit">Criar Consulta</button>
       </form>
+
+      <h2>Lista de Crianças Cadastradas</h2>
+      <table border={1} style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>CPF da Criança</th>
+            <th>CPF do Responsável</th>
+            <th>Telefone do Responsável</th>
+            <th>Nome da Criança</th>
+          </tr>
+        </thead>
+        <tbody>
+          {children.map((child, idx) => (
+            <tr key={idx}>
+              <td>{child.id}</td>
+              <td>{child.cpf_crianca}</td>
+              <td>{child.cpf_responsavel}</td>
+              <td>{child.telefone_responsavel}</td>
+              <td>{child.nome_crianca}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       {responseMessage && (
         <div style={{ margin: '10px 0', color: responseMessage.toLowerCase().includes('erro') || responseMessage.toLowerCase().includes('error') ? 'red' : 'green' }}>
