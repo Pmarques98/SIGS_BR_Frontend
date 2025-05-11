@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
 import { setAPIClient } from '../../services/apiBuilder';
+import { Button } from '../../components/ui/Button'; 
+
 
 export default function DashboardUser() {
   const router = useRouter();
@@ -47,6 +49,11 @@ export default function DashboardUser() {
             isUpcoming: !!response.data.upcomingConsultation.isUpcoming,
             link_meets: response.data.upcomingConsultation.link_meets,
           });
+  
+          // Configura o timeout para remover a notificação após 20 minutos
+          setTimeout(() => {
+            setUpcoming({ isUpcoming: false, link_meets: null });
+          }, 20 * 60 * 1000); // 20 minutos em milissegundos
         } else {
           setUpcoming({ isUpcoming: false, link_meets: null });
         }
@@ -171,8 +178,8 @@ export default function DashboardUser() {
         <button type="submit">Criar Consulta</button>
       </form>
 
-      <h2>Lista de Crianças Cadastradas</h2>
-      <table border={1} style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+      <h2>Crianças cadastradas</h2>
+      <table border={1} style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px'}}>
         <thead>
           <tr>
             <th>ID</th>
@@ -195,11 +202,34 @@ export default function DashboardUser() {
         </tbody>
       </table>
 
+      {/* Botão para acessar a página de relatórios aceitos */}
+      <Button
+        type="button"
+        onClick={() => router.push(`/recommendations/recommendations?cpf=${cpf}`)}
+        style={{
+          marginTop: '2rem', /* Ajuste conforme necessário */
+          width: '100%',
+          maxWidth: '400px', /* Certifique-se de que a largura é 100% para o alinhamento correto */
+          textAlign: 'center',
+          backgroundColor: '#4caf50',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          padding: '2rem 1.5rem', 
+        }}
+      >
+        Recomendações
+      </Button>
+
       {responseMessage && (
         <div style={{ margin: '10px 0', color: responseMessage.toLowerCase().includes('erro') || responseMessage.toLowerCase().includes('error') ? 'red' : 'green' }}>
           {responseMessage}
         </div>
       )}
+
+      
     </div>
   );
 }
