@@ -137,7 +137,7 @@ export default function DashboardUser() {
           <strong>Você tem uma consulta em breve!</strong>
           <br />
           <a href={upcoming.link_meets} target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2' }}>
-            Acessar Google Meets
+            Entrar na consulta
           </a>
         </div>
       )}
@@ -152,8 +152,7 @@ export default function DashboardUser() {
             <strong>ID:</strong> {item.id}<br />
             <strong>Descrição:</strong> {item.description}<br />
             <strong>Data:</strong> {item.data_consultation}<br />
-            <strong>Status:</strong> {item.status}<br />
-            <hr />
+            <strong>Status:</strong> {item.cpf_psychologist ? 'Aceita pelo psicólogo' : 'Em aguardo'}<br />            <hr />
           </li>
         ))}
       </ul>
