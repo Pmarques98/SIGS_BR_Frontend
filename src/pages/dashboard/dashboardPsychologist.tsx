@@ -242,6 +242,10 @@ async function handleAcceptConsultation(id: number) {
             <br />
             <strong>Data:</strong> {item.data_consultation}
             <br />
+             <strong>Cpf_user:</strong> {item.cpf_user}
+            <br />
+             <strong>Cpf_child:</strong> {item.cpf_paciente}
+            <br />
             <hr />
           </li>
         ))}
