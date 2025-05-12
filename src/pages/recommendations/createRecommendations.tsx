@@ -7,6 +7,7 @@ export default function CreateRecommendations() {
   const { cpf } = router.query;
   const [nameChild, setNameChild] = useState('');
   const [cpfUser, setCpfUser] = useState('');
+  const [cpfChild, setCpfChild] = useState('');
   const [cpfPsychologist, setCpfPsychologist] = useState(cpf || '');
   const [nomePsychologist, setNomePsychologist] = useState('');
   const [cellphoneNumber, setCellphoneNumber] = useState('');
@@ -22,6 +23,7 @@ export default function CreateRecommendations() {
       const response = await api.post('/reports', {
         name_child: nameChild,
         cpf_user: cpfUser,
+        cpf_child: cpfChild,
         cpf_psychologist: cpfPsychologist,
         nome_psychologist: nomePsychologist,
         cellphone_number: cellphoneNumber,
@@ -34,6 +36,7 @@ export default function CreateRecommendations() {
         setResponseMessage('Recomendação cadastrada com sucesso!');
         setNameChild('');
         setCpfUser('');
+        setCpfChild('');
         setNomePsychologist('');
         setCellphoneNumber('');
         setReport('');
@@ -59,6 +62,13 @@ export default function CreateRecommendations() {
           placeholder="CPF do usuário"
           value={cpfUser}
           onChange={(e) => setCpfUser(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="CPF da criança"
+          value={cpfChild}
+          onChange={(e) => setCpfChild(e.target.value)}
           required
         />
         <input

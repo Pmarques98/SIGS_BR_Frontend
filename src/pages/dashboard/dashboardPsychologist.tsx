@@ -242,7 +242,6 @@ async function handleAcceptConsultation(id: number) {
             <br />
             <strong>Data:</strong> {item.data_consultation}
             <br />
-            <strong>Status:</strong> {item.status}
             <hr />
           </li>
         ))}

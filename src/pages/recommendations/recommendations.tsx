@@ -6,6 +6,7 @@ type Report = {
   id: number;
   name_child: string;
   cpf_user: string;
+  cpf_child: string; // Adicionado campo cpf_child
   cpf_psychologist: string;
   nome_psychologist: string;
   cellphone_number: string;
@@ -59,6 +60,8 @@ export default function RecommendationsPage() {
             <tr>
               <th>ID</th>
               <th>Nome da Criança</th>
+              <th>CPF do Usuário</th> {/* Novo campo */}
+              <th>CPF da Criança</th> {/* Novo campo */}
               <th>CPF do Psicólogo</th>
               <th>Nome do Psicólogo</th>
               <th>Telefone</th>
@@ -71,6 +74,8 @@ export default function RecommendationsPage() {
               <tr key={report.id}>
                 <td>{report.id}</td>
                 <td>{report.name_child}</td>
+                <td>{report.cpf_user}</td> {/* Exibindo CPF do usuário */}
+                <td>{report.cpf_child}</td> {/* Exibindo CPF da criança */}
                 <td>{report.cpf_psychologist}</td>
                 <td>{report.nome_psychologist}</td>
                 <td>{report.cellphone_number}</td>
