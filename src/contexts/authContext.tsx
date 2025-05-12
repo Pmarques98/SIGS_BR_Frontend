@@ -141,10 +141,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function signUpPatient({ cpf_patient, cpf_advisor, cellphone_advisor, name_patient }: signUpPatientProps) {
     try {
       const response = await api.post('/cadastro/crianca', {
-        cpf_patient,
-        cpf_advisor,
-        cellphone_advisor,
-        name_patient
+        cpf_crianca: cpf_patient,
+        cpf_responsavel:  cpf_advisor,
+        telefone_responsavel: cellphone_advisor,
+        nome_crianca: name_patient
       });
       console.log('Cadastro concluído');
 

@@ -75,8 +75,7 @@ async function fetchAcceptedConsultations() {
       setAcceptedConsultations([]);
     }
   } catch (err: any) {
-    setResponseMessage('Erro ao buscar consultas aceitas');
-    setTimeout(() => setResponseMessage(null), 5000); // Limpa a mensagem após 5 segundos
+    console.error('Erro ao buscar consultas aceitas:', err);
     setAcceptedConsultations([]);
   }
 }
