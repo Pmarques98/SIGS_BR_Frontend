@@ -96,7 +96,7 @@ export default function Home() {
               placeholder="Digite seu cpf (ex: 12345678900)"
               type="text"
               value={cpf}
-              maxLength={11} // limitar a 11 caracteres
+              maxLength={11}
               onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))} // remover caracteres não numéricos
             />
             <Input
@@ -109,6 +109,7 @@ export default function Home() {
               placeholder="Digite seu número de telefone (ex: 11912345678)"
               type="text"
               value={cellphone_number}
+              maxLength={11}
               onChange={(e) => setCellphone(e.target.value)}
             />
             <Button type="submit" loading={loading}>

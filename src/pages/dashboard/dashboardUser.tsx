@@ -16,8 +16,9 @@ export default function DashboardUser() {
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
 
-  // Notificação de consulta próxima
   const [upcoming, setUpcoming] = useState<{ isUpcoming: boolean, link_meets: string | null }>({ isUpcoming: false, link_meets: null });
+  const [notificationsAvailable, setNotificationsAvailable] = useState<any[]>([]);
+
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   // Função para converter o horário local do input para UTC ISO string
@@ -39,21 +40,21 @@ export default function DashboardUser() {
       if (response.data && response.data.error) {
         setResponseMessage(response.data.error);
         setMyConsultations([]);
-        setChildren([]); // Limpa a lista de crianças em caso de erro
+        setChildren([]);
         setUpcoming({ isUpcoming: false, link_meets: null });
+        setNotificationsAvailable([]);
       } else {
         setMyConsultations(Array.isArray(response.data.consultations) ? response.data.consultations : []);
-        setChildren(Array.isArray(response.data.children) ? response.data.children : []); // Define a lista de crianças
+        setChildren(Array.isArray(response.data.children) ? response.data.children : []);
+        setNotificationsAvailable(Array.isArray(response.data.notificationsAvailable) ? response.data.notificationsAvailable : []);
         if (response.data.upcomingConsultation) {
           setUpcoming({
             isUpcoming: !!response.data.upcomingConsultation.isUpcoming,
             link_meets: response.data.upcomingConsultation.link_meets,
           });
-  
-          // Configura o timeout para remover a notificação após 20 minutos
           setTimeout(() => {
             setUpcoming({ isUpcoming: false, link_meets: null });
-          }, 20 * 60 * 1000); // 20 minutos em milissegundos
+          }, 20 * 60 * 1000);
         } else {
           setUpcoming({ isUpcoming: false, link_meets: null });
         }
@@ -61,14 +62,25 @@ export default function DashboardUser() {
     } catch (err: any) {
       setResponseMessage('Erro ao buscar suas consultas');
       setMyConsultations([]);
-      setChildren([]); // Limpa a lista de crianças em caso de erro
+      setChildren([]);
       setUpcoming({ isUpcoming: false, link_meets: null });
+      setNotificationsAvailable([]);
     }
     setLoading(false);
   }
 
-  // Polling para upcomingConsultation
-  useEffect(() => {
+  // Função para fechar notificação (marcar como visualizada)
+  async function handleCloseNotification(id: number) {
+    try {
+      const api = setAPIClient();
+      await api.post('/notificacao/visualizada', { id });
+      setNotificationsAvailable((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      setResponseMessage('Erro ao fechar notificação');
+    }
+  }
+
+    useEffect(() => {
     if (!cpf) return;
     fetchConsultationsAndUpcoming(); // Busca inicial
     pollingRef.current = setInterval(fetchConsultationsAndUpcoming, 10000); // A cada 10s
@@ -76,6 +88,8 @@ export default function DashboardUser() {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [cpf]);
+
+
 
   async function handleCreateConsultation(e: React.FormEvent) {
     e.preventDefault();
@@ -106,6 +120,13 @@ export default function DashboardUser() {
     }
   }
 
+  useEffect(() => {
+    if (responseMessage) {
+      const timer = setTimeout(() => setResponseMessage(null), 5000); 
+      return () => clearTimeout(timer);
+    }
+  }, [responseMessage]);
+
   async function handleListMyConsultations() {
     setLoading(true);
     setResponseMessage(null);
@@ -117,6 +138,57 @@ export default function DashboardUser() {
     <div style={{ position: 'relative' }}>
       <h1>Bem vindo a pagina principal do usuario</h1>
       {cpf && <p>Conta: {cpf}</p>}
+
+      {notificationsAvailable.length > 0 && notificationsAvailable.map((notification) => (
+        <div
+          key={notification.id}
+          style={{
+            position: 'fixed',
+            top: 80,
+            right: 20,
+            background: '#fff',
+            border: '2px solid #1976d2',
+            borderRadius: 8,
+            padding: 16,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            zIndex: 1100,
+            minWidth: 250,
+            marginBottom: 10,
+          }}
+        >
+          <strong>Nova notificação</strong>
+          <br />
+          <strong>Nome da criança:</strong> {notification.name_child}
+          <br />
+          <strong>CPF da criança:</strong> {notification.cpf_child}
+          <br />
+          <strong>Data e hora do envio:</strong> {
+            notification.data
+              ? new Date(notification.data).toLocaleString('pt-BR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+                })
+              : ''
+          }
+          <br />
+          <strong>Mensagem:</strong> {notification.report}
+          <br />
+          <a
+            href="#"
+            style={{ color: '#1976d2', textDecoration: 'underline', cursor: 'pointer', float: 'right', marginTop: 8 }}
+            onClick={e => {
+              e.preventDefault();
+              handleCloseNotification(notification.id);
+            }}
+          >
+            Fechar
+          </a>
+        </div>
+      ))}
 
       {/* Notificação de consulta próxima */}
       {upcoming.isUpcoming && upcoming.link_meets && (
@@ -143,9 +215,6 @@ export default function DashboardUser() {
       )}
 
       <h2>Minhas consultas</h2>
-      <button onClick={handleListMyConsultations} disabled={loading || !cpf}>
-        {loading ? 'Buscando...' : 'Listar minhas consultas'}
-      </button>
       <ul>
         {(Array.isArray(myConsultations) ? myConsultations : []).map((item, idx) => (
           <li key={idx}>
@@ -165,9 +234,13 @@ export default function DashboardUser() {
           onChange={e => setDescription(e.target.value)}
         />
         <input
+          type="text"
           placeholder="CPF do paciente"
           value={cpfPaciente}
-          onChange={e => setCpfPaciente(e.target.value)}
+          onChange={e => setCpfPaciente(e.target.value.replace(/\D/g, '').slice(0, 11))}
+          maxLength={11}
+          pattern="\d{11}"
+          inputMode="numeric"
         />
         <input
           type="datetime-local"
@@ -186,6 +259,7 @@ export default function DashboardUser() {
             <th>CPF do Responsável</th>
             <th>Telefone do Responsável</th>
             <th>Nome da Criança</th>
+            <th>Gravidade</th>
           </tr>
         </thead>
         <tbody>
@@ -196,6 +270,7 @@ export default function DashboardUser() {
               <td>{child.cpf_responsavel}</td>
               <td>{child.telefone_responsavel}</td>
               <td>{child.nome_crianca}</td>
+              <td>{child.status}</td>
             </tr>
           ))}
         </tbody>

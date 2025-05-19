@@ -13,46 +13,46 @@ import Link from 'next/link';
 export default function Home() {
   const { signUpPatient } = useContext(AuthContext);
 
-    const [cpf_patient, setCpfPatient] = useState('');
-    const [cpf_advisor, setCpfAdvisor] = useState('');
-    const [cellphone_advisor, setCellphoneAdvisor] = useState('');
-    const [name_patient, setNamePatient] = useState('');
+    const [cpf_child, setCpfPatient] = useState('');
+    const [cpf_user, setCpfAdvisor] = useState('');
+    const [cellphone_user, setCellphoneAdvisor] = useState('');
+    const [name_child, setNamePatient] = useState('');
     const [loading, setLoading] = useState(false);
 
   async function signUpPatientHandle(event: FormEvent) {
     event.preventDefault();
 
-    if (cpf_patient === '' || cpf_advisor === '' || cellphone_advisor === '' || name_patient === '') {
+    if (cpf_child === '' || cpf_user === '' || cellphone_user === '' || name_child === '') {
       alert('É necessário preencher todos os campos');
       return;
     }
 
     // validar se o CPF tem 11 dígitos
-    if (cpf_patient.length !== 11) {
+    if (cpf_child.length !== 11) {
       alert('O CPF deve ter 11 dígitos');
       return;
     }
 
      // validar se o CPF tem 11 dígitos
-     if (cpf_advisor.length !== 11) {
+     if (cpf_user.length !== 11) {
         alert('O CPF deve ter 11 dígitos');
         return;
       }
 
     // Verificação do formato do número de telefone
     const phoneRegex = /^[1-9]{2}[9][0-9]{8}$/;
-    if (!phoneRegex.test(cellphone_advisor)) {
+    if (!phoneRegex.test(cellphone_user)) {
         alert('Por favor, insira um número de telefone válido no formato 11912345678');
         return;
     }
 
     setLoading(true);
 
-    let data = {
-        cpf_patient,
-        cpf_advisor,
-        cellphone_advisor,
-        name_patient,
+    const data = {
+        cpf_child,
+        cpf_user,
+        cellphone_user,
+        name_child,
     };
 
     try {
@@ -87,27 +87,28 @@ export default function Home() {
             <Input
               placeholder="Digite o CPF do paciente (ex: 12345678900)"
               type="text"
-              value={cpf_patient}
+              value={cpf_child}
               maxLength={11} // limitar a 11 caracteres
               onChange={(e) => setCpfPatient(e.target.value.replace(/\D/g, ''))} // remover caracteres não numéricos
             />
                         <Input
               placeholder="Digite o CPF do responsável (ex: 12345678900)"
               type="text"
-              value={cpf_advisor}
+              value={cpf_user}
               maxLength={11} // limitar a 11 caracteres
               onChange={(e) => setCpfAdvisor(e.target.value.replace(/\D/g, ''))} // remover caracteres não numéricos
             />
             <Input
               placeholder="Digite seu número de telefone do responsável (ex: 11912345678)"
               type="text"
-              value={cellphone_advisor}
+              value={cellphone_user}
+              maxLength={11} // limitar a 11 caracteres
               onChange={(e) => setCellphoneAdvisor(e.target.value)}
             />
             <Input
               placeholder="Digite o nome do paciente"
               type="text"
-              value={name_patient}
+              value={name_child}
               onChange={(e) => setNamePatient(e.target.value)}
             />
             <Button type="submit" loading={loading}>

@@ -21,6 +21,8 @@ export default function RecommendationsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [responseMessage, setResponseMessage] = useState<string | null>(null);
+
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   async function fetchReports() {
@@ -34,7 +36,7 @@ export default function RecommendationsPage() {
       });
       setReports(response.data || []);
     } catch (err: any) {
-      setErrorMessage('Erro ao buscar relatórios dos psicólogos.');
+      setResponseMessage('Erro ao buscar relatórios dos psicólogos.');
     }
     setLoading(false);
   }
@@ -48,6 +50,14 @@ export default function RecommendationsPage() {
     };
   }, [cpf]);
 
+  useEffect(() => {
+      if (responseMessage) {
+        const timer = setTimeout(() => setResponseMessage(null), 5000); 
+        return () => clearTimeout(timer);
+      }
+    }, [responseMessage]);
+
+
   return (
     <div style={{ padding: '20px', color: '#fff' }}> {/* Alterado para texto branco */}
       <h1>Recomendações</h1>
@@ -60,8 +70,8 @@ export default function RecommendationsPage() {
             <tr>
               <th>ID</th>
               <th>Nome da Criança</th>
-              <th>CPF do Usuário</th> {/* Novo campo */}
-              <th>CPF da Criança</th> {/* Novo campo */}
+              <th>CPF do Usuário</th> 
+              <th>CPF da Criança</th>
               <th>CPF do Psicólogo</th>
               <th>Nome do Psicólogo</th>
               <th>Telefone</th>

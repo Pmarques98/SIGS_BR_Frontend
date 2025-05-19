@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { setAPIClient } from '../../services/apiBuilder';
 
 export default function CreateRecommendations() {
@@ -13,6 +13,8 @@ export default function CreateRecommendations() {
   const [cellphoneNumber, setCellphoneNumber] = useState('');
   const [report, setReport] = useState('');
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
+  const [childStatus, setChildStatus] = useState('leve');
+
 
   async function handleCreateRecommendation(e: React.FormEvent) {
     e.preventDefault();
@@ -28,6 +30,7 @@ export default function CreateRecommendations() {
         nome_psychologist: nomePsychologist,
         cellphone_number: cellphoneNumber,
         report,
+        status: childStatus,
       });
 
       if (response.data && response.data.error) {
@@ -46,6 +49,13 @@ export default function CreateRecommendations() {
     }
   }
 
+   useEffect(() => {
+      if (responseMessage) {
+        const timer = setTimeout(() => setResponseMessage(null), 5000); 
+        return () => clearTimeout(timer);
+      }
+    }, [responseMessage]);
+    
   return (
     <div style={{ padding: '2rem' }}>
       <h1>Escrever recomendação</h1>
@@ -62,6 +72,9 @@ export default function CreateRecommendations() {
           placeholder="CPF do usuário"
           value={cpfUser}
           onChange={(e) => setCpfUser(e.target.value)}
+          maxLength={11}
+          pattern="\d{11}"
+          inputMode="numeric"
           required
         />
         <input
@@ -69,6 +82,9 @@ export default function CreateRecommendations() {
           placeholder="CPF da criança"
           value={cpfChild}
           onChange={(e) => setCpfChild(e.target.value)}
+          maxLength={11}
+          pattern="\d{11}"
+          inputMode="numeric"
           required
         />
         <input
@@ -79,12 +95,29 @@ export default function CreateRecommendations() {
           required
         />
         <input
-          type="text"
-          placeholder="Número de telefone"
-          value={cellphoneNumber}
-          onChange={(e) => setCellphoneNumber(e.target.value)}
-          required
+            type="text"
+            placeholder="Número de telefone"
+            value={cellphoneNumber}
+            onChange={(e) => setCellphoneNumber(e.target.value)}
+            maxLength={11}
+            pattern="\d{11}"
+            inputMode="numeric"
+            required
         />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <label htmlFor="childStatus"><strong>Situação da criança:</strong></label>
+          <select
+            id="childStatus"
+            value={childStatus}
+            onChange={(e) => setChildStatus(e.target.value)}
+            required
+          >
+            <option value="leve">Leve</option>
+            <option value="moderado">Moderado</option>
+            <option value="grave">Grave</option>
+            <option value="critico">Crítico</option>
+          </select>
+        </div>
         <textarea
           placeholder="Recomendações a serem feitas" 
           value={report}

@@ -2,6 +2,7 @@ import { createContext, ReactNode, useState } from 'react';
 import { destroyCookie, setCookie } from 'nookies';
 import Router from 'next/router';
 import { api } from '../services/apiClient';
+import { cp } from 'fs';
 
 type AuthContextData = {
   user: UserProps | null;
@@ -44,10 +45,10 @@ type SignUpPsychologistProps = {
 };
 
 type signUpPatientProps = {
-  cpf_patient : String,
-  cpf_advisor : String,
-  cellphone_advisor : String,
-  name_patient : String,
+  cpf_child : String,
+  cpf_user : String,
+  cellphone_user : String,
+  name_child : String,
 };
 
 export const AuthContext = createContext({} as AuthContextData);
@@ -138,13 +139,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  async function signUpPatient({ cpf_patient, cpf_advisor, cellphone_advisor, name_patient }: signUpPatientProps) {
+  async function signUpPatient({ cpf_child, cpf_user, cellphone_user, name_child }: signUpPatientProps) {
     try {
       const response = await api.post('/cadastro/crianca', {
-        cpf_crianca: cpf_patient,
-        cpf_responsavel:  cpf_advisor,
-        telefone_responsavel: cellphone_advisor,
-        nome_crianca: name_patient
+        cpf_child: cpf_child,
+        cpf_user:  cpf_user,
+        cellphone_user: cellphone_user,
+        name_child: name_child,
       });
       console.log('Cadastro concluído');
 
