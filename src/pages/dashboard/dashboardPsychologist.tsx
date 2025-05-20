@@ -310,7 +310,7 @@ export default function DashboardPsychologist() {
                     <td>{child.name_child}</td>
                     <td style={{ fontWeight: 'bold', textTransform: 'capitalize' }}>{child.status}</td>
                     <td>
-                      {(child.status === 'grave' || child.status === 'critico') && (
+                      {(child.status === 'grave' || child.status === 'critico' || child.status === 'moderado' || child.status === 'leve') && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <input
                             type="text"
