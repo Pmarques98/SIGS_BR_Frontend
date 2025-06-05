@@ -6,7 +6,7 @@ type Report = {
   id: number;
   name_child: string;
   cpf_user: string;
-  cpf_child: string; // Adicionado campo cpf_child
+  cpf_child: string;
   cpf_psychologist: string;
   nome_psychologist: string;
   cellphone_number: string;
@@ -43,61 +43,89 @@ export default function RecommendationsPage() {
 
   useEffect(() => {
     if (!cpf) return;
-    fetchReports(); // Busca inicial
-    pollingRef.current = setInterval(fetchReports, 10000); // A cada 10 segundos
+    fetchReports();
+    pollingRef.current = setInterval(fetchReports, 10000);
     return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current); // Limpa o intervalo ao desmontar o componente
+      if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [cpf]);
 
   useEffect(() => {
-      if (responseMessage) {
-        const timer = setTimeout(() => setResponseMessage(null), 5000); 
-        return () => clearTimeout(timer);
-      }
-    }, [responseMessage]);
-
+    if (responseMessage) {
+      const timer = setTimeout(() => setResponseMessage(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [responseMessage]);
 
   return (
-    <div style={{ padding: '20px', color: '#fff' }}> {/* Alterado para texto branco */}
-      <h1>Recomendações</h1>
-      {loading && <p>Carregando...</p>}
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-  
-      {reports.length > 0 ? (
-        <table border={1} style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', color: '#fff' }}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome da Criança</th>
-              <th>CPF do Usuário</th> 
-              <th>CPF da Criança</th>
-              <th>CPF do Psicólogo</th>
-              <th>Nome do Psicólogo</th>
-              <th>Telefone</th>
-              <th>Data</th>
-              <th>Relatório</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reports.map((report) => (
-              <tr key={report.id}>
-                <td>{report.id}</td>
-                <td>{report.name_child}</td>
-                <td>{report.cpf_user}</td> {/* Exibindo CPF do usuário */}
-                <td>{report.cpf_child}</td> {/* Exibindo CPF da criança */}
-                <td>{report.cpf_psychologist}</td>
-                <td>{report.nome_psychologist}</td>
-                <td>{report.cellphone_number}</td>
-                <td>{new Date(report.data).toLocaleString()}</td>
-                <td>{report.report}</td>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '3rem 1rem'
+    }}>
+      <div style={{
+        background: '#fff',
+        borderRadius: 18,
+        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+        padding: '2rem 2rem 1.5rem 2rem',
+        minWidth: 340,
+        maxWidth: 900,
+        width: '100%',
+        margin: '0 auto'
+      }}>
+        <h1 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 24 }}>Recomendações</h1>
+        {loading && <p>Carregando...</p>}
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+
+        {reports.length > 0 ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome da Criança</th>
+                <th>CPF do Usuário</th>
+                <th>CPF da Criança</th>
+                <th>CPF do Psicólogo</th>
+                <th>Nome do Psicólogo</th>
+                <th>Telefone</th>
+                <th>Data</th>
+                <th>Relatório</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        !loading && <p>Nenhuma recomendação foi encontrada.</p>
-      )}
+            </thead>
+            <tbody>
+              {reports.map((report) => (
+                <tr key={report.id}>
+                  <td>{report.id}</td>
+                  <td>{report.name_child}</td>
+                  <td>{report.cpf_user}</td>
+                  <td>{report.cpf_child}</td>
+                  <td>{report.cpf_psychologist}</td>
+                  <td>{report.nome_psychologist}</td>
+                  <td>{report.cellphone_number}</td>
+                  <td>{new Date(report.data).toLocaleString('pt-BR')}</td>
+                  <td>{report.report}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          !loading && <p style={{ color: '#888' }}>Nenhuma recomendação foi encontrada.</p>
+        )}
+        {responseMessage && (
+          <div
+            style={{
+              marginTop: '1rem',
+              color: responseMessage.toLowerCase().includes('erro') ? 'red' : 'green',
+              textAlign: 'center'
+            }}
+          >
+            {responseMessage}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

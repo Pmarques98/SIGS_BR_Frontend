@@ -5,8 +5,9 @@ import { Button } from '../../components/ui/Button';
 
 export default function DashboardPsychologist() {
   const router = useRouter();
-  const { cpf } = router.query;
+  const { cpf, nome } = router.query;
   const cpf_psychologist = cpf;
+  const nome_psychologist = nome;
 
   const [availableConsultations, setAvailableConsultations] = useState<any[]>([]);
   const [acceptedConsultations, setAcceptedConsultations] = useState<any[]>([]);
@@ -23,6 +24,9 @@ export default function DashboardPsychologist() {
   const [children, setChildren] = useState<any[]>([]);
   const [notificationReports, setNotificationReports] = useState<{ [key: number]: string }>({});
   const [notifyingId, setNotifyingId] = useState<number | null>(null);
+
+  // Drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   async function fetchConsultationsAndUpcoming() {
     if (!cpf_psychologist) return;
@@ -163,52 +167,65 @@ export default function DashboardPsychologist() {
   }, [responseMessage]);
 
   return (
-    <div style={{ position: 'relative' }}>
-      <h1>Bem vindo ao dashboard do psicólogo</h1>
-      {cpf_psychologist && <p>Conta: {cpf_psychologist}</p>}
-
-      {/* Notificação de consulta próxima */}
-      {upcoming.isUpcoming && upcoming.link_meets && (
-        <div
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)', display: 'flex' }}>
+      {/* Drawer lateral */}
+      <nav
+        style={{
+          position: 'fixed',
+          left: drawerOpen ? 0 : -260,
+          top: 0,
+          width: 260,
+          height: '100vh',
+          background: '#fff',
+          boxShadow: '2px 0 16px rgba(25, 118, 210, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem',
+          padding: '2rem 1.2rem 1.2rem 1.2rem',
+          zIndex: 1200,
+          transition: 'left 0.3s',
+        }}
+      >
+        <button
           style={{
-            position: 'fixed',
-            top: 20,
-            right: 20,
-            background: '#fff',
-            border: '2px solid #4caf50',
-            borderRadius: 8,
-            padding: 16,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            zIndex: 1000,
-            minWidth: 250,
+            background: 'none',
+            border: 'none',
+            fontSize: '2rem',
+            color: '#1976d2',
+            alignSelf: 'flex-end',
+            cursor: 'pointer',
+            marginBottom: '1rem',
           }}
+          onClick={() => setDrawerOpen(false)}
         >
-          <strong>Você tem uma consulta em breve!</strong>
-          <br />
-          <strong>OBS: Entre mais cedo para criar a reuniao e enviar o link</strong>
-          <br />
-          <a href={upcoming.link_meets} target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2' }}>
-            Entrar na consulta
-          </a>
-        </div>
-      )}
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-        <h2>Listar consultas</h2>
-        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>|</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <h2 style={{ margin: 0 }}>Enviar link</h2>
+          ×
+        </button>
+        <Button
+          style={{ marginBottom: '1rem', width: '100%' }}
+          onClick={() => router.push(`/recommendations/createRecommendations?cpf=${cpf_psychologist}`)}
+        >
+          Escrever recomendação
+        </Button>
+        <Button
+          style={{ marginBottom: '1rem', width: '100%' }}
+          onClick={() => router.push(`/recommendations/createPrivateRecommendations?cpf=${cpf_psychologist}`)}
+        >
+          Escrever recomendação particular
+        </Button>
+        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+          <h3 style={{ margin: 0, color: '#1976d2' }}>Enviar link</h3>
           <input
             type="text"
             placeholder="Id"
             value={linkId}
             onChange={(e) => setLinkId(e.target.value)}
             style={{
-              padding: '0.5rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              width: '3rem',
-              textAlign: 'center',
+              border: '1.5px solid #e3e3e3',
+              borderRadius: 8,
+              padding: '0.7rem 1rem',
+              fontSize: '1rem',
+              background: '#f7fafd',
+              marginBottom: '0.5rem',
             }}
           />
           <input
@@ -216,201 +233,281 @@ export default function DashboardPsychologist() {
             placeholder="Link"
             value={link}
             onChange={(e) => setLink(e.target.value)}
-            style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px', width: '19rem', textAlign: 'center' }}
-          />
-          <button
-            onClick={handleSendLink}
             style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#4caf50',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
+              border: '1.5px solid #e3e3e3',
+              borderRadius: 8,
+              padding: '0.7rem 1rem',
+              fontSize: '1rem',
+              background: '#f7fafd',
+              marginBottom: '0.5rem',
+            }}
+          />
+          <Button onClick={handleSendLink}>Enviar</Button>
+        </div>
+      </nav>
+
+      {/* Botão para abrir drawer */}
+      <button
+        style={{
+          position: 'fixed',
+          left: 16,
+          top: 16,
+          background: '#1976d2',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '50%',
+          width: 44,
+          height: 44,
+          fontSize: '2rem',
+          cursor: 'pointer',
+          zIndex: 1300,
+          boxShadow: '0 2px 8px rgba(25, 118, 210, 0.08)',
+        }}
+        onClick={() => setDrawerOpen(true)}
+      >
+        ☰
+      </button>
+
+      {/* Conteúdo central */}
+      <main style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '2.5rem',
+        marginLeft: 0,
+        padding: '3rem 1rem 1rem 1rem',
+        width: '100%',
+      }}>
+        <h1 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 0 }}>
+          Bem vindo ao dashboard do psicólogo: {nome_psychologist || '...'} ({cpf_psychologist || '...'})
+        </h1>
+
+        {/* Notificação de consulta próxima */}
+        {upcoming.isUpcoming && upcoming.link_meets && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 20,
+              right: 20,
+              background: '#fff',
+              border: '2px solid #4caf50',
+              borderRadius: 8,
+              padding: 16,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              zIndex: 1000,
+              minWidth: 250,
             }}
           >
-            Enviar
-          </button>
-        </div>
-      </div>
+            <strong>Você tem uma consulta em breve!</strong>
+            <br />
+            <strong>OBS: Entre mais cedo para criar a reunião e enviar o link</strong>
+            <br />
+            <a href={upcoming.link_meets} target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2' }}>
+              Entrar na consulta
+            </a>
+          </div>
+        )}
 
-      <ul>
-        {availableConsultations.map((item, idx) => (
-          <li key={idx}>
-            <strong>ID:</strong> {item.id}
-            <br />
-            <strong>Descrição:</strong> {item.description}
-            <br />
-            <strong>Data:</strong> {item.data_consultation}
-            <br />
-            <button onClick={() => handleAcceptConsultation(item.id)}>Aceitar consulta</button>
-            <hr />
-          </li>
-        ))}
-      </ul>
+        {/* Listar consultas */}
+        <section style={{
+          background: '#fff',
+          borderRadius: 18,
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+          padding: '2rem 2rem 1.5rem 2rem',
+          minWidth: 340,
+          maxWidth: 900,
+          width: '100%',
+          margin: '0 auto',
+        }}>
+          <h2 style={{ color: '#1976d2', marginBottom: '1rem' }}>Listar consultas</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+            <thead>
+              <tr>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>ID</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Descrição</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Data</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {availableConsultations.map((item) => (
+                <tr key={item.id}>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.id}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.description}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.data_consultation}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>
+                    <Button onClick={() => handleAcceptConsultation(item.id)}>Aceitar consulta</Button>
+                  </td>
+                </tr>
+              ))}
+              {availableConsultations.length === 0 && (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', padding: 12 }}>Nenhuma consulta disponível.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
 
-      <h2>Minhas Consultas</h2>
-      <ul>
-        {acceptedConsultations.map((item, idx) => (
-          <li key={idx}>
-            <strong>ID:</strong> {item.id}
-            <br />
-            <strong>Descrição:</strong> {item.description}
-            <br />
-            <strong>Data da consulta:</strong> {item.data_consultation}
-            <br />
-            <strong>Cpf do usuário:</strong> {item.cpf_user}
-            <br />
-            <strong>Cpf da criança:</strong> {item.cpf_paciente}
-            <br />
-            <hr />
-          </li>
-        ))}
-      </ul>
+        {/* Minhas Consultas */}
+        <section style={{
+          background: '#fff',
+          borderRadius: 18,
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+          padding: '2rem 2rem 1.5rem 2rem',
+          minWidth: 340,
+          maxWidth: 900,
+          width: '100%',
+          margin: '0 auto',
+        }}>
+          <h2 style={{ color: '#1976d2', marginBottom: '1rem' }}>Minhas Consultas</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+            <thead>
+              <tr>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>ID</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Descrição</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Data</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>CPF Usuário</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>CPF Criança</th>
+              </tr>
+            </thead>
+            <tbody>
+              {acceptedConsultations.map((item) => (
+                <tr key={item.id}>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.id}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.description}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.data_consultation}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.cpf_user}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.cpf_paciente}</td>
+                </tr>
+              ))}
+              {acceptedConsultations.length === 0 && (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: 12 }}>Nenhuma consulta aceita.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
 
-      <h2>Crianças consultadas</h2>
-      {children.length > 0 ? (
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }} border={1}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>CPF da Criança</th>
-              <th>CPF do Responsável</th>
-              <th>Telefone do Responsável</th>
-              <th>Nome da Criança</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[...children]
-              .sort((a, b) => {
-                const order: { [key: string]: number } = { critico: 4, grave: 3, moderado: 2, leve: 1 };
-                return (order[b.status as string] || 0) - (order[a.status as string] || 0);
-              })
-              .map((child: any) => {
-                let bgColor = '#fff';
-                let color = '#000';
-                if (child.status === 'critico') {
-                  bgColor = '#ffcccc';
-                  color = '#b71c1c';
-                } else if (child.status === 'grave') {
-                  bgColor = '#ffeaea';
-                  color = '#d32f2f';
-                } else if (child.status === 'moderado') {
-                  bgColor = '#f0f0f0';
-                  color = '#616161';
-                }
-                return (
-                  <tr key={child.id} style={{ backgroundColor: bgColor, color }}>
-                    <td>{child.id}</td>
-                    <td>{child.cpf_child}</td>
-                    <td>{child.cpf_user}</td>
-                    <td>{child.cellphone_user}</td>
-                    <td>{child.name_child}</td>
-                    <td style={{ fontWeight: 'bold', textTransform: 'capitalize' }}>{child.status}</td>
-                    <td>
-                      {(child.status === 'grave' || child.status === 'critico' || child.status === 'moderado' || child.status === 'leve') && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <input
-                            type="text"
-                            placeholder="Mensagem da notificação"
-                            value={notificationReports[child.id] || ''}
-                            onChange={e =>
-                              setNotificationReports(prev => ({
-                                ...prev,
-                                [child.id]: e.target.value,
-                              }))
-                            }
-                            style={{ padding: '0.3rem', borderRadius: 4, border: '1px solid #ccc', minWidth: 180 }}
-                          />
-                          <button
-                            onClick={() => handleNotifyUser(child)}
-                            disabled={notifyingId === child.id}
-                            style={{
-                              padding: '0.3rem 0.7rem',
-                              backgroundColor: '#1976d2',
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: 4,
-                              cursor: 'pointer',
-                              fontWeight: 'bold',
-                            }}
-                          >
-                            {notifyingId === child.id ? 'Enviando...' : 'Notifique o usuário'}
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
-      ) : (
-        <p>Nenhuma criança consultada encontrada.</p>
-      )}
+        {/* Crianças consultadas */}
+        <section style={{
+          background: '#fff',
+          borderRadius: 18,
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+          padding: '2rem 2rem 1.5rem 2rem',
+          minWidth: 340,
+          maxWidth: 900,
+          width: '100%',
+          margin: '0 auto',
+        }}>
+          <h2 style={{ color: '#1976d2', marginBottom: '1rem' }}>Crianças consultadas</h2>
+          {children.length > 0 ? (
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+              <thead>
+                <tr>
+                  <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>ID</th>
+                  <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>CPF da Criança</th>
+                  <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>CPF do Responsável</th>
+                  <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Telefone do Responsável</th>
+                  <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Nome da Criança</th>
+                  <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Status</th>
+                  <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...children]
+                  .sort((a, b) => {
+                    const order: { [key: string]: number } = { critico: 4, grave: 3, moderado: 2, leve: 1 };
+                    return (order[b.status as string] || 0) - (order[a.status as string] || 0);
+                  })
+                  .map((child: any) => {
+                    let bgColor = '#fff';
+                    let color = '#000';
+                    if (child.status === 'critico') {
+                      bgColor = '#ffcccc';
+                      color = '#b71c1c';
+                    } else if (child.status === 'grave') {
+                      bgColor = '#ffeaea';
+                      color = '#d32f2f';
+                    } else if (child.status === 'moderado') {
+                      bgColor = '#f0f0f0';
+                      color = '#616161';
+                    }
+                    return (
+                      <tr key={child.id} style={{ backgroundColor: bgColor, color }}>
+                        <td>{child.id}</td>
+                        <td>{child.cpf_child}</td>
+                        <td>{child.cpf_user}</td>
+                        <td>{child.cellphone_user}</td>
+                        <td>{child.name_child}</td>
+                        <td style={{ fontWeight: 'bold', textTransform: 'capitalize' }}>{child.status}</td>
+                        <td>
+                          {(child.status === 'grave' || child.status === 'critico' || child.status === 'moderado' || child.status === 'leve') && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <input
+                                type="text"
+                                placeholder="Mensagem da notificação"
+                                value={notificationReports[child.id] || ''}
+                                onChange={e =>
+                                  setNotificationReports(prev => ({
+                                    ...prev,
+                                    [child.id]: e.target.value,
+                                  }))
+                                }
+                                style={{ padding: '0.3rem', borderRadius: 4, border: '1px solid #ccc', minWidth: 180 }}
+                              />
+                              <button
+                                onClick={() => handleNotifyUser(child)}
+                                disabled={notifyingId === child.id}
+                                style={{
+                                  padding: '0.3rem 0.7rem',
+                                  backgroundColor: '#1976d2',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: 4,
+                                  cursor: 'pointer',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                {notifyingId === child.id ? 'Enviando...' : 'Notifique o usuário'}
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          ) : (
+            <p style={{ textAlign: 'center', color: '#888' }}>Nenhuma criança consultada encontrada.</p>
+          )}
+        </section>
 
-      <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem', flexWrap: 'wrap' }}>
-        <Button
-          type="button"
-          onClick={() => router.push(`/recommendations/createRecommendations?cpf=${cpf_psychologist}`)}
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            textAlign: 'center',
-            backgroundColor: '#4caf50',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            padding: '2rem 1.5rem',
-          }}
-        >
-          Escrever recomendações
-        </Button>
-        <Button
-          type="button"
-          onClick={() => router.push(`/recommendations/createPrivateRecommendations?cpf=${cpf_psychologist}`)}
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            textAlign: 'center',
-            backgroundColor: '#1976d2',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            padding: '2rem 1.5rem',
-          }}
-        >
-          Escrever Recomendações particulares
-        </Button>
-      </div>
-
-      {responseMessage && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: '#fff',
-            padding: '1rem 2rem',
-            borderRadius: '8px',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-            zIndex: 1000,
-            textAlign: 'center',
-            color: responseMessage.toLowerCase().includes('erro') || responseMessage.toLowerCase().includes('error')
-              ? 'red'
-              : 'green',
-          }}
-        >
-          {responseMessage}
-        </div>
-      )}
+        {responseMessage && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: '#fff',
+              padding: '1rem 2rem',
+              borderRadius: '8px',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+              zIndex: 1000,
+              textAlign: 'center',
+              color: responseMessage.toLowerCase().includes('erro') || responseMessage.toLowerCase().includes('error')
+                ? 'red'
+                : 'green',
+            }}
+          >
+            {responseMessage}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

@@ -1,18 +1,17 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
 import { setAPIClient } from '../../services/apiBuilder';
-import { Button } from '../../components/ui/Button'; 
-
+import { Button } from '../../components/ui/Button';
 
 export default function DashboardUser() {
   const router = useRouter();
-  const { cpf } = router.query;
+  const { cpf, nome } = router.query;
 
   const [description, setDescription] = useState('');
   const [cpfPaciente, setCpfPaciente] = useState('');
   const [dataConsultation, setDataConsultation] = useState('');
   const [myConsultations, setMyConsultations] = useState<any[]>([]);
-  const [children, setChildren] = useState<any[]>([]); // Estado para armazenar a lista de crianças
+  const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
 
@@ -21,11 +20,12 @@ export default function DashboardUser() {
 
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Função para converter o horário local do input para UTC ISO string
+  // Drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   function toUTCISOString(localDateStr: string) {
     if (!localDateStr) return '';
     const localDate = new Date(localDateStr);
-    // Ajusta para UTC
     const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
     return utcDate.toISOString();
   }
@@ -69,7 +69,6 @@ export default function DashboardUser() {
     setLoading(false);
   }
 
-  // Função para fechar notificação (marcar como visualizada)
   async function handleCloseNotification(id: number) {
     try {
       const api = setAPIClient();
@@ -80,16 +79,14 @@ export default function DashboardUser() {
     }
   }
 
-    useEffect(() => {
+  useEffect(() => {
     if (!cpf) return;
-    fetchConsultationsAndUpcoming(); // Busca inicial
-    pollingRef.current = setInterval(fetchConsultationsAndUpcoming, 10000); // A cada 10s
+    fetchConsultationsAndUpcoming();
+    pollingRef.current = setInterval(fetchConsultationsAndUpcoming, 10000);
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [cpf]);
-
-
 
   async function handleCreateConsultation(e: React.FormEvent) {
     e.preventDefault();
@@ -122,188 +119,295 @@ export default function DashboardUser() {
 
   useEffect(() => {
     if (responseMessage) {
-      const timer = setTimeout(() => setResponseMessage(null), 5000); 
+      const timer = setTimeout(() => setResponseMessage(null), 5000);
       return () => clearTimeout(timer);
     }
   }, [responseMessage]);
 
-  async function handleListMyConsultations() {
-    setLoading(true);
-    setResponseMessage(null);
-    await fetchConsultationsAndUpcoming();
-    setLoading(false);
-  }
-
   return (
-    <div style={{ position: 'relative' }}>
-      <h1>Bem vindo a pagina principal do usuario</h1>
-      {cpf && <p>Conta: {cpf}</p>}
-
-      {notificationsAvailable.length > 0 && notificationsAvailable.map((notification) => (
-        <div
-          key={notification.id}
-          style={{
-            position: 'fixed',
-            top: 80,
-            right: 20,
-            background: '#fff',
-            border: '2px solid #1976d2',
-            borderRadius: 8,
-            padding: 16,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            zIndex: 1100,
-            minWidth: 250,
-            marginBottom: 10,
-          }}
-        >
-          <strong>Nova notificação</strong>
-          <br />
-          <strong>Nome da criança:</strong> {notification.name_child}
-          <br />
-          <strong>CPF da criança:</strong> {notification.cpf_child}
-          <br />
-          <strong>Data e hora do envio:</strong> {
-            notification.data
-              ? new Date(notification.data).toLocaleString('pt-BR', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit'
-                })
-              : ''
-          }
-          <br />
-          <strong>Mensagem:</strong> {notification.report}
-          <br />
-          <a
-            href="#"
-            style={{ color: '#1976d2', textDecoration: 'underline', cursor: 'pointer', float: 'right', marginTop: 8 }}
-            onClick={e => {
-              e.preventDefault();
-              handleCloseNotification(notification.id);
-            }}
-          >
-            Fechar
-          </a>
-        </div>
-      ))}
-
-      {/* Notificação de consulta próxima */}
-      {upcoming.isUpcoming && upcoming.link_meets && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 20,
-            right: 20,
-            background: '#fff',
-            border: '2px solid #4caf50',
-            borderRadius: 8,
-            padding: 16,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            zIndex: 1000,
-            minWidth: 250,
-          }}
-        >
-          <strong>Você tem uma consulta em breve!</strong>
-          <br />
-          <a href={upcoming.link_meets} target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2' }}>
-            Entrar na consulta
-          </a>
-        </div>
-      )}
-
-      <h2>Minhas consultas</h2>
-      <ul>
-        {(Array.isArray(myConsultations) ? myConsultations : []).map((item, idx) => (
-          <li key={idx}>
-            <strong>ID:</strong> {item.id}<br />
-            <strong>Descrição:</strong> {item.description}<br />
-            <strong>Data:</strong> {item.data_consultation}<br />
-            <strong>Status:</strong> {item.cpf_psychologist ? 'Aceita pelo psicólogo' : 'Em aguardo'}<br />            <hr />
-          </li>
-        ))}
-      </ul>
-      
-      <h2>Criar nova consulta</h2>
-      <form onSubmit={handleCreateConsultation}>
-        <textarea
-          placeholder="Descrição"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="CPF do paciente"
-          value={cpfPaciente}
-          onChange={e => setCpfPaciente(e.target.value.replace(/\D/g, '').slice(0, 11))}
-          maxLength={11}
-          pattern="\d{11}"
-          inputMode="numeric"
-        />
-        <input
-          type="datetime-local"
-          value={dataConsultation}
-          onChange={e => setDataConsultation(e.target.value)}
-        />
-        <button type="submit">Criar Consulta</button>
-      </form>
-
-      <h2>Crianças cadastradas</h2>
-      <table border={1} style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px'}}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>CPF da Criança</th>
-            <th>CPF do Responsável</th>
-            <th>Telefone do Responsável</th>
-            <th>Nome da Criança</th>
-            <th>Gravidade</th>
-          </tr>
-        </thead>
-        <tbody>
-          {children.map((child, idx) => (
-            <tr key={idx}>
-              <td>{child.id}</td>
-              <td>{child.cpf_crianca}</td>
-              <td>{child.cpf_responsavel}</td>
-              <td>{child.telefone_responsavel}</td>
-              <td>{child.nome_crianca}</td>
-              <td>{child.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Botão para acessar a página de relatórios aceitos */}
-      <Button
-        type="button"
-        onClick={() => router.push(`/recommendations/recommendations?cpf=${cpf}`)}
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)', display: 'flex' }}>
+      {/* Drawer lateral */}
+      <nav
         style={{
-          marginTop: '2rem', /* Ajuste conforme necessário */
-          width: '100%',
-          maxWidth: '400px', /* Certifique-se de que a largura é 100% para o alinhamento correto */
-          textAlign: 'center',
-          backgroundColor: '#4caf50',
-          color: '#fff',
+          position: 'fixed',
+          left: drawerOpen ? 0 : -260,
+          top: 0,
+          width: 260,
+          height: '100vh',
+          background: '#fff',
+          boxShadow: '2px 0 16px rgba(25, 118, 210, 0.08)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           flexDirection: 'column',
-          padding: '2rem 1.5rem', 
+          gap: '1.5rem',
+          padding: '2rem 1.2rem 1.2rem 1.2rem',
+          zIndex: 1200,
+          transition: 'left 0.3s',
         }}
       >
-        Recomendações
-      </Button>
+        <button
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '2rem',
+            color: '#1976d2',
+            alignSelf: 'flex-end',
+            cursor: 'pointer',
+            marginBottom: '1rem',
+          }}
+          onClick={() => setDrawerOpen(false)}
+        >
+          ×
+        </button>
+        <Button
+          style={{ marginBottom: '1rem', width: '100%' }}
+          onClick={() => router.push(`/recommendations/recommendations?cpf=${cpf}`)}
+        >
+          Recomendações
+        </Button>
+      </nav>
 
-      {responseMessage && (
-        <div style={{ margin: '10px 0', color: responseMessage.toLowerCase().includes('erro') || responseMessage.toLowerCase().includes('error') ? 'red' : 'green' }}>
-          {responseMessage}
-        </div>
-      )}
+      {/* Botão para abrir drawer */}
+      <button
+        style={{
+          position: 'fixed',
+          left: 16,
+          top: 16,
+          background: '#1976d2',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '50%',
+          width: 44,
+          height: 44,
+          fontSize: '2rem',
+          cursor: 'pointer',
+          zIndex: 1300,
+          boxShadow: '0 2px 8px rgba(25, 118, 210, 0.08)',
+        }}
+        onClick={() => setDrawerOpen(true)}
+      >
+        ☰
+      </button>
 
-      
+      {/* Conteúdo central */}
+      <main style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '2.5rem',
+        marginLeft: 0,
+        padding: '3rem 1rem 1rem 1rem',
+        width: '100%',
+      }}>
+        <h1 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 0 }}>
+          Bem vindo ao dashboard do usuário: {nome || '...'} ({cpf || '...'})
+        </h1>
+
+        {/* Notificações */}
+        {notificationsAvailable.length > 0 && notificationsAvailable.map((notification) => (
+          <div
+            key={notification.id}
+            style={{
+              position: 'fixed',
+              top: 80,
+              right: 20,
+              background: '#fff',
+              border: '2px solid #1976d2',
+              borderRadius: 8,
+              padding: 16,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              zIndex: 1100,
+              minWidth: 250,
+              marginBottom: 10,
+            }}
+          >
+            <strong>Nova notificação</strong>
+            <br />
+            <strong>Nome da criança:</strong> {notification.name_child}
+            <br />
+            <strong>CPF da criança:</strong> {notification.cpf_child}
+            <br />
+            <strong>Data e hora do envio:</strong> {
+              notification.data
+                ? new Date(notification.data).toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                  })
+                : ''
+            }
+            <br />
+            <strong>Mensagem:</strong> {notification.report}
+            <br />
+            <a
+              href="#"
+              style={{ color: '#1976d2', textDecoration: 'underline', cursor: 'pointer', float: 'right', marginTop: 8 }}
+              onClick={e => {
+                e.preventDefault();
+                handleCloseNotification(notification.id);
+              }}
+            >
+              Fechar
+            </a>
+          </div>
+        ))}
+
+        {/* Notificação de consulta próxima */}
+        {upcoming.isUpcoming && upcoming.link_meets && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 20,
+              right: 20,
+              background: '#fff',
+              border: '2px solid #4caf50',
+              borderRadius: 8,
+              padding: 16,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              zIndex: 1000,
+              minWidth: 250,
+            }}
+          >
+            <strong>Você tem uma consulta em breve!</strong>
+            <br />
+            <a href={upcoming.link_meets} target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2' }}>
+              Entrar na consulta
+            </a>
+          </div>
+        )}
+
+        {/* Minhas consultas */}
+        <section style={{
+          background: '#fff',
+          borderRadius: 18,
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+          padding: '2rem 2rem 1.5rem 2rem',
+          minWidth: 340,
+          maxWidth: 900,
+          width: '100%',
+          margin: '0 auto',
+        }}>
+          <h2 style={{ color: '#1976d2', marginBottom: '1rem' }}>Minhas consultas</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+            <thead>
+              <tr>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>ID</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Descrição</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Data</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(Array.isArray(myConsultations) ? myConsultations : []).map((item, idx) => (
+                <tr key={idx}>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.id}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.description}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.data_consultation}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{item.cpf_psychologist ? 'Aceita pelo psicólogo' : 'Em aguardo'}</td>
+                </tr>
+              ))}
+              {myConsultations.length === 0 && (
+                <tr>
+                  <td colSpan={4} style={{ textAlign: 'center', padding: 12 }}>Nenhuma consulta encontrada.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Criar nova consulta */}
+        <section style={{
+          background: '#fff',
+          borderRadius: 18,
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+          padding: '2rem 2rem 1.5rem 2rem',
+          minWidth: 340,
+          maxWidth: 900,
+          width: '100%',
+          margin: '0 auto',
+        }}>
+          <h2 style={{ color: '#1976d2', marginBottom: '1rem' }}>Criar nova consulta</h2>
+          <form onSubmit={handleCreateConsultation} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <textarea
+              placeholder="Descrição"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              style={{ borderRadius: 8, border: '1.5px solid #e3e3e3', padding: '0.7rem 1rem', fontSize: '1rem', background: '#f7fafd' }}
+            />
+            <input
+              type="text"
+              placeholder="CPF do paciente"
+              value={cpfPaciente}
+              onChange={e => setCpfPaciente(e.target.value.replace(/\D/g, '').slice(0, 11))}
+              maxLength={11}
+              pattern="\d{11}"
+              inputMode="numeric"
+              style={{ borderRadius: 8, border: '1.5px solid #e3e3e3', padding: '0.7rem 1rem', fontSize: '1rem', background: '#f7fafd' }}
+            />
+            <input
+              type="datetime-local"
+              value={dataConsultation}
+              onChange={e => setDataConsultation(e.target.value)}
+              style={{ borderRadius: 8, border: '1.5px solid #e3e3e3', padding: '0.7rem 1rem', fontSize: '1rem', background: '#f7fafd' }}
+            />
+            <Button type="submit" style={{ width: '100%', marginTop: 8 }}>
+              Criar Consulta
+            </Button>
+          </form>
+        </section>
+
+        {/* Crianças cadastradas */}
+        <section style={{
+          background: '#fff',
+          borderRadius: 18,
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+          padding: '2rem 2rem 1.5rem 2rem',
+          minWidth: 340,
+          maxWidth: 900,
+          width: '100%',
+          margin: '0 auto',
+        }}>
+          <h2 style={{ color: '#1976d2', marginBottom: '1rem' }}>Crianças cadastradas</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+            <thead>
+              <tr>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>ID</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>CPF da Criança</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>CPF do Responsável</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Telefone do Responsável</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Nome da Criança</th>
+                <th style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', background: '#f7fafd', color: '#1976d2', fontWeight: 600 }}>Gravidade</th>
+              </tr>
+            </thead>
+            <tbody>
+              {children.map((child, idx) => (
+                <tr key={idx}>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.id}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.cpf_crianca}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.cpf_responsavel}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.telefone_responsavel}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.nome_crianca}</td>
+                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.status}</td>
+                </tr>
+              ))}
+              {children.length === 0 && (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: 12 }}>Nenhuma criança cadastrada encontrada.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
+
+        {responseMessage && (
+          <div style={{ margin: '10px 0', color: responseMessage.toLowerCase().includes('erro') || responseMessage.toLowerCase().includes('error') ? 'red' : 'green' }}>
+            {responseMessage}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

@@ -21,13 +21,11 @@ export default function Home() {
   async function handleLogin(event: FormEvent) {
     event.preventDefault();
 
-    // verificar se o usuario mandou algo na pagina de login
     if (password === '' || cpf === '') {
       alert('É preciso preencher seus dados');
       return;
     }
 
-    // validar se o CPF tem 11 dígitos
     if (cpf.length !== 11) {
       alert('O CPF deve ter 11 dígitos');
       return;
@@ -54,25 +52,26 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title> POAP - Faça seu login</title>
+        <title>POAP - Faça seu login</title>
       </Head>
       <div className={styles.containerCenter}>
-        <Image
-          src={logoImg}
-          alt="Logo POAP"
-          width={150} // ajuste conforme necessário
-          height={150} // ajuste conforme necessário
-        />
         <div className={styles.login}>
-          <h1 className={styles.title}>POAP</h1> {/*SIGS_BR*/}
-          <h2>Login</h2>
+          <Image
+            src={logoImg}
+            alt="Logo POAP"
+            width={150}
+            height={150}
+            style={{ marginBottom: 16 }}
+          />
+          <h1 className={styles.title}>POAP</h1>
+          <h2 className={styles.subtitle}>Login</h2>
           <form onSubmit={handleLogin}>
             <Input
               placeholder="Digite seu cpf (ex: 12345678900)"
               type="text"
               value={cpf}
-              maxLength={11} // limitar a 11 caracteres
-              onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))} // remover caracteres não numéricos
+              maxLength={11}
+              onChange={(e) => setCpf(e.target.value.replace(/\D/g, ''))}
             />
             <Input
               placeholder="Digite sua senha"
@@ -84,7 +83,6 @@ export default function Home() {
               Acessar
             </Button>
           </form>
-
           <Link href="/signup/signupType" legacyBehavior>
             <a className={styles.text}>Não possui uma conta? Cadastre-se</a>
           </Link>

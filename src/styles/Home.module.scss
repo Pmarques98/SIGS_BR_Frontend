@@ -1,73 +1,101 @@
-.container{
-  color: red;
-
-  h1{
-    front-size: 100px;
-    color: blue
-  }
-}
-
 .containerCenter {
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background-color: var(--gray-900);
-}
-
-.title {
-  color: #32634b; /* Troque pela cor desejada */
-  margin-bottom: 40px; /* Ajuste conforme necessário */
+  background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
 }
 
 .login {
-  margin-top: 2rem; /* Ajuste conforme necessário */
-  width: 600px; /* Certifique-se de que a largura é 100% para o alinhamento correto */
-  text-align: center;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-width: 340px;
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
-  padding: 2rem 1.5rem; 
+  align-items: center;
 
-  h2{
-    color: var(--white);
-    padding-bottom: column;   
-    margin-top: -20px; 
-    margin-bottom: 20px;
-  }
-
-  form{
-    width: 90%;
+  form {
+    width: 100%;
     display: flex;
     flex-direction: column;
+    gap: 1.2rem;
   }
 
-  form button{
-    height: 40px;
-    font-size: 1.2rem;
+  input {
+    border: 1.5px solid #e3e3e3;
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: border 0.2s;
+    outline: none;
+    background: #f7fafd;
+    color: #444; // <-- Deixa o texto cinza igual ao "Login"
   }
 
-}
+  input::placeholder {
+    color: #444; // <-- Deixa o placeholder cinza igual ao "Login"
+    opacity: 1;
+  }
 
-.text{
-  margin-top: 1rem;
-  color: var(--white);
-  cursor: pointer;
-}
+  input:focus {
+    border: 1.5px solid #1976d2;
+    background: #fff;
+  }
 
-@media (max-width: 620px){
-  .login{
-    width: 90%;
+  button {
+    background: linear-gradient(90deg, #1976d2 60%, #64b5f6 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.9rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+  }
+
+  button:hover {
+    background: linear-gradient(90deg, #1565c0 60%, #42a5f5 100%);
   }
 }
 
-.labelText {
-  color: var(--white);
+.title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
 }
 
-.buttonContainer {
+.subtitle {
+  font-size: 1.2rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+}
+
+.text {
+  color: #1976d2;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  text-align: center;
+  display: block;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.text:hover {
+  color: #0d47a1;
+  text-decoration: underline;
+}
+
+.buttonGroup {
   display: flex;
-  gap: 10rem; 
+  flex-direction: column;
+  gap: 1.2rem;
 }
