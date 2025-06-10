@@ -5,7 +5,12 @@ import { Button } from '../../components/ui/Button';
 
 export default function DashboardUser() {
   const router = useRouter();
-  const { cpf, nome } = router.query;
+  const { cpf, name } = router.query;
+
+  // Estado para mostrar/ocultar a imagem explicativa após login
+  const [showHelp2, setShowHelp2] = useState(false);
+  // Estado para mostrar/ocultar a imagem explicativa via botão de ajuda
+  const [showHelp, setShowHelp] = useState(false);
 
   const [description, setDescription] = useState('');
   const [cpfPaciente, setCpfPaciente] = useState('');
@@ -122,10 +127,64 @@ export default function DashboardUser() {
       const timer = setTimeout(() => setResponseMessage(null), 5000);
       return () => clearTimeout(timer);
     }
+    // Mostra explicação só após login, se localStorage pedir
+    if (localStorage.getItem('showDashboard2Help') === 'true') {
+      setShowHelp2(true);
+      localStorage.removeItem('showDashboard2Help');
+    }
   }, [responseMessage]);
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)', display: 'flex' }}>
+      {/* Imagem explicativa do dashboard (após login ou botão de ajuda) */}
+      {(showHelp2 || showHelp) && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            zIndex: 9999,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <div style={{ position: 'relative', background: '#fff', borderRadius: 12, boxShadow: '0 4px 24px #0002', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <h2 style={{ textAlign: 'center', color: '#1976d2', marginBottom: 18, fontWeight: 700, fontSize: 28 }}>
+              POAP: Como utilizar
+            </h2>
+            <img
+              src="/dashboard-user-explicado.png"
+              alt="Explicação do dashboard do usuário"
+              style={{ maxWidth: '90vw', maxHeight: '65vh', borderRadius: 8, marginBottom: 32, zoom: 1.25 }}
+            />
+            <button
+              onClick={() => {
+                setShowHelp(false);
+                setShowHelp2(false);
+              }}
+              style={{
+                background: '#1976d2',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                padding: '12px 32px',
+                fontWeight: 600,
+                fontSize: 18,
+                cursor: 'pointer',
+                marginTop: 8,
+                alignSelf: 'center'
+              }}
+            >
+              Lido
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Drawer lateral */}
       <nav
         style={{
@@ -164,6 +223,13 @@ export default function DashboardUser() {
         >
           Recomendações
         </Button>
+        {/* Botão de ajuda manual */}
+        <Button
+          style={{ width: '100%' }}
+          onClick={() => setShowHelp(true)}
+        >
+          Ajuda
+        </Button>
       </nav>
 
       {/* Botão para abrir drawer */}
@@ -200,7 +266,7 @@ export default function DashboardUser() {
         width: '100%',
       }}>
         <h1 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 0 }}>
-          Bem vindo ao dashboard do usuário: {nome || '...'} ({cpf || '...'})
+          Bem vindo ao dashboard do usuário: {name || '...'} ({cpf || '...'})
         </h1>
 
         {/* Notificações */}
@@ -383,16 +449,38 @@ export default function DashboardUser() {
               </tr>
             </thead>
             <tbody>
-              {children.map((child, idx) => (
-                <tr key={idx}>
-                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.id}</td>
-                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.cpf_crianca}</td>
-                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.cpf_responsavel}</td>
-                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.telefone_responsavel}</td>
-                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.nome_crianca}</td>
-                  <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.status}</td>
-                </tr>
-              ))}
+              {[...children]
+                .sort((a, b) => {
+                  const order: { [key: string]: number } = { critico: 4, grave: 3, moderado: 2, leve: 1, 'crítico': 4 };
+                  return (order[b.status?.toLowerCase()] || 0) - (order[a.status?.toLowerCase()] || 0);
+                })
+                .map((child, idx) => {
+                  let bgColor = '#fff';
+                  let color = '#000';
+                  if (child.status?.toLowerCase() === 'critico' || child.status?.toLowerCase() === 'crítico') {
+                    bgColor = '#ffcccc';
+                    color = '#b71c1c';
+                  } else if (child.status?.toLowerCase() === 'grave') {
+                    bgColor = '#ffeaea';
+                    color = '#d32f2f';
+                  } else if (child.status?.toLowerCase() === 'moderado') {
+                    bgColor = '#f0f0f0';
+                    color = '#616161';
+                  } else if (child.status?.toLowerCase() === 'leve') {
+                    bgColor = '#e8f5e9';
+                    color = '#388e3c';
+                  }
+                  return (
+                    <tr key={idx} style={{ background: bgColor, color }}>
+                      <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.id}</td>
+                      <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.cpf_crianca}</td>
+                      <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.cpf_responsavel}</td>
+                      <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.telefone_responsavel}</td>
+                      <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem' }}>{child.nome_crianca}</td>
+                      <td style={{ border: '1px solid #e3e3e3', padding: '0.7rem 0.5rem', fontWeight: 600 }}>{child.status}</td>
+                    </tr>
+                  );
+                })}
               {children.length === 0 && (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: 12 }}>Nenhuma criança cadastrada encontrada.</td>
@@ -403,10 +491,30 @@ export default function DashboardUser() {
         </section>
 
         {responseMessage && (
-          <div style={{ margin: '10px 0', color: responseMessage.toLowerCase().includes('erro') || responseMessage.toLowerCase().includes('error') ? 'red' : 'green' }}>
-            {responseMessage}
-          </div>
-        )}
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 2000,
+              minWidth: 260,
+              maxWidth: 400,
+              color: responseMessage.toLowerCase().includes('não') ? '#d32f2f' : '#388e3c',
+              background: responseMessage.toLowerCase().includes('não') ? '#ffebee' : '#e8f5e9',
+              border: responseMessage.toLowerCase().includes('não') ? '1.5px solid #d32f2f' : '1.5px solid #388e3c',
+              borderRadius: 12,
+              padding: '1.2rem 2rem',
+              textAlign: 'center',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+              transition: 'opacity 0.3s'
+            }}
+          >
+              {responseMessage}
+            </div>
+          )}
       </main>
     </div>
   );

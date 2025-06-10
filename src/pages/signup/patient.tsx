@@ -59,9 +59,10 @@ export default function Home() {
       await signUpPatient(data);
     } catch (error) {
       if (error instanceof Error) {
-        alert('CPF já cadastrado');
+        alert('CPF de criança já cadastrado ou CPF do responsável não encontrado');
+        error
       } else {
-        alert('Erro desconhecido');
+        alert('Erro ao cadastrar criança');
       }
     } finally {
       setLoading(false);

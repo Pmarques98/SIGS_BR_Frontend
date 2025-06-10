@@ -5,9 +5,9 @@ import { Button } from '../../components/ui/Button';
 
 export default function DashboardPsychologist() {
   const router = useRouter();
-  const { cpf, nome } = router.query;
+  const { cpf, name } = router.query;
   const cpf_psychologist = cpf;
-  const nome_psychologist = nome;
+  const nome_psychologist = name;
 
   const [availableConsultations, setAvailableConsultations] = useState<any[]>([]);
   const [acceptedConsultations, setAcceptedConsultations] = useState<any[]>([]);
@@ -27,6 +27,10 @@ export default function DashboardPsychologist() {
 
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Ajuda ilustrativa
+  const [showHelp2, setShowHelp2] = useState(false); // para exibir após login
+  const [showHelp, setShowHelp] = useState(false);   // para exibir via botão
 
   async function fetchConsultationsAndUpcoming() {
     if (!cpf_psychologist) return;
@@ -164,10 +168,64 @@ export default function DashboardPsychologist() {
       const timer = setTimeout(() => setResponseMessage(null), 5000);
       return () => clearTimeout(timer);
     }
+    // Mostra explicação só após login, se localStorage pedir
+    if (localStorage.getItem('showDashboard2Help') === 'true') {
+      setShowHelp2(true);
+      localStorage.removeItem('showDashboard2Help');
+    }
   }, [responseMessage]);
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)', display: 'flex' }}>
+      {/* Imagem explicativa do dashboard (após login ou botão de ajuda) */}
+      {(showHelp2 || showHelp) && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            zIndex: 9999,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <div style={{ position: 'relative', background: '#fff', borderRadius: 12, boxShadow: '0 4px 24px #0002', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <h2 style={{ textAlign: 'center', color: '#1976d2', marginBottom: 18, fontWeight: 700, fontSize: 28 }}>
+              POAP: Como utilizar
+            </h2>
+            <img
+              src="/dashboard-psychologist-explicado.png"
+              alt="Explicação do dashboard do psicólogo"
+              style={{ maxWidth: '90vw', maxHeight: '65vh', borderRadius: 8, marginBottom: 32, zoom: 1.25 }}
+            />
+            <button
+              onClick={() => {
+                setShowHelp(false);
+                setShowHelp2(false);
+              }}
+              style={{
+                background: '#1976d2',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                padding: '12px 32px',
+                fontWeight: 600,
+                fontSize: 18,
+                cursor: 'pointer',
+                marginTop: 8,
+                alignSelf: 'center'
+              }}
+            >
+              Lido
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Drawer lateral */}
       <nav
         style={{
@@ -211,6 +269,13 @@ export default function DashboardPsychologist() {
           onClick={() => router.push(`/recommendations/createPrivateRecommendations?cpf=${cpf_psychologist}`)}
         >
           Escrever recomendação particular
+        </Button>
+        {/* Botão de ajuda manual */}
+        <Button
+          style={{ width: '100%' }}
+          onClick={() => setShowHelp(true)}
+        >
+          Ajuda
         </Button>
         <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
           <h3 style={{ margin: 0, color: '#1976d2' }}>Enviar link</h3>
@@ -434,7 +499,10 @@ export default function DashboardPsychologist() {
                     } else if (child.status === 'moderado') {
                       bgColor = '#f0f0f0';
                       color = '#616161';
-                    }
+                    } else if (child.status === 'leve') {
+                    bgColor = '#e8f5e9';
+                    color = '#388e3c';
+                  }
                     return (
                       <tr key={child.id} style={{ backgroundColor: bgColor, color }}>
                         <td>{child.id}</td>
@@ -493,20 +561,24 @@ export default function DashboardPsychologist() {
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              backgroundColor: '#fff',
-              padding: '1rem 2rem',
-              borderRadius: '8px',
-              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-              zIndex: 1000,
+              zIndex: 2000,
+              minWidth: 260,
+              maxWidth: 400,
+              color: responseMessage.toLowerCase().includes('não') ? '#d32f2f' : '#388e3c',
+              background: responseMessage.toLowerCase().includes('não') ? '#ffebee' : '#e8f5e9',
+              border: responseMessage.toLowerCase().includes('não') ? '1.5px solid #d32f2f' : '1.5px solid #388e3c',
+              borderRadius: 12,
+              padding: '1.2rem 2rem',
               textAlign: 'center',
-              color: responseMessage.toLowerCase().includes('erro') || responseMessage.toLowerCase().includes('error')
-                ? 'red'
-                : 'green',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+              transition: 'opacity 0.3s'
             }}
           >
-            {responseMessage}
-          </div>
-        )}
+              {responseMessage}
+            </div>
+          )}
       </main>
     </div>
   );

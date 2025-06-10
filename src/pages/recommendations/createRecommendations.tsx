@@ -44,7 +44,11 @@ export default function CreateRecommendations() {
         setReport('');
       }
     } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setResponseMessage(err.response.data.error);
+      } else {
       setResponseMessage('Erro ao cadastrar recomendação');
+      }
     }
   }
 
@@ -166,14 +170,28 @@ export default function CreateRecommendations() {
         {responseMessage && (
           <div
             style={{
-              marginTop: '1rem',
-              color: responseMessage.toLowerCase().includes('erro') ? 'red' : 'green',
-              textAlign: 'center'
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 2000,
+              minWidth: 260,
+              maxWidth: 400,
+              color: responseMessage.toLowerCase().includes('não') ? '#d32f2f' : '#388e3c',
+              background: responseMessage.toLowerCase().includes('não') ? '#ffebee' : '#e8f5e9',
+              border: responseMessage.toLowerCase().includes('não') ? '1.5px solid #d32f2f' : '1.5px solid #388e3c',
+              borderRadius: 12,
+              padding: '1.2rem 2rem',
+              textAlign: 'center',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+              transition: 'opacity 0.3s'
             }}
           >
-            {responseMessage}
-          </div>
-        )}
+              {responseMessage}
+            </div>
+          )}
       </div>
     </div>
   );

@@ -91,10 +91,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Direciona o usuario para o dashboard apropriado com o cpf na URL
       if (isUser) {
-        Router.push(`/dashboard/dashboardUser?cpf=${cpf}`);
+        Router.push(`/dashboard/dashboardUser?cpf=${cpf}&name=${response.data.name}`);
       } else {
-        Router.push(`/dashboard/dashboardPsychologist?cpf=${cpf}`);
+        Router.push(`/dashboard/dashboardPsychologist?cpf=${cpf}&name=${response.data.name}`);
       }
+      // Após login bem-sucedido
+      localStorage.setItem('showDashboard2Help', 'true');
 
       console.log(response.data);
     } catch (erro) {

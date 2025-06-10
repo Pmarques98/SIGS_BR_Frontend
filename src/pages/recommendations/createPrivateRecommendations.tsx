@@ -38,7 +38,11 @@ export default function CreatePrivateRecommendations() {
         fetchPrivateReports();
       }
     } catch (err: any) {
-      setResponseMessage('Erro ao cadastrar recomendação particular');
+      if (err.response && err.response.data && err.response.data.error) {
+        setResponseMessage(err.response.data.error);
+      } else {
+        setResponseMessage('Erro ao cadastrar recomendação');
+      }
     }
   }
 
@@ -140,9 +144,23 @@ export default function CreatePrivateRecommendations() {
         {responseMessage && (
           <div
             style={{
-              marginTop: '1rem',
-              color: responseMessage.toLowerCase().includes('erro') ? 'red' : 'green',
-              textAlign: 'center'
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 2000,
+              minWidth: 260,
+              maxWidth: 400,
+              color: responseMessage.toLowerCase().includes('não') || responseMessage.toLowerCase().includes('erro') ? '#d32f2f' : '#388e3c',
+              background: responseMessage.toLowerCase().includes('não') || responseMessage.toLowerCase().includes('erro') ? '#ffebee' : '#e8f5e9',
+              border: responseMessage.toLowerCase().includes('não') || responseMessage.toLowerCase().includes('erro') ? '1.5px solid #d32f2f' : '1.5px solid #388e3c',
+              borderRadius: 12,
+              padding: '1.2rem 2rem',
+              textAlign: 'center',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+              transition: 'opacity 0.3s'
             }}
           >
             {responseMessage}
@@ -153,28 +171,47 @@ export default function CreatePrivateRecommendations() {
         {loadingReports ? (
           <p>Carregando...</p>
         ) : privateReports.length > 0 ? (
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }} border={1}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Data</th>
-                <th>Nome da Criança</th>
-                <th>CPF da Criança</th>
-                <th>Recomendação</th>
-              </tr>
-            </thead>
-            <tbody>
-              {privateReports.map((rep: any) => (
-                <tr key={rep.id}>
-                  <td>{rep.id}</td>
-                  <td>{rep.data ? new Date(rep.data).toLocaleString('pt-BR') : ''}</td>
-                  <td>{rep.name_child}</td>
-                  <td>{rep.cpf_child}</td>
-                  <td>{rep.report}</td>
+          <div style={{ overflowX: 'auto' }}>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                marginTop: '1rem',
+                tableLayout: 'fixed'
+              }}
+              border={1}
+            >
+              <colgroup>
+                <col style={{ width: '40px' }} />
+                <col style={{ width: '140px' }} />
+                <col style={{ width: '140px' }} />
+                <col style={{ width: '140px' }} />
+                <col style={{ width: '300px' }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Data</th>
+                  <th>Nome da Criança</th>
+                  <th>CPF da Criança</th>
+                  <th>Recomendação</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {privateReports.map((rep: any) => (
+                  <tr key={rep.id}>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{rep.id}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>
+                      {rep.data ? new Date(rep.data).toLocaleString('pt-BR') : ''}
+                    </td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{rep.name_child}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{rep.cpf_child}</td>
+                    <td style={{ wordBreak: 'break-word', maxWidth: 300 }}>{rep.report}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p style={{ color: '#888' }}>Nenhuma recomendação particular encontrada.</p>
         )}

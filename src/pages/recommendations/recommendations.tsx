@@ -81,45 +81,82 @@ export default function RecommendationsPage() {
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
         {reports.length > 0 ? (
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nome da Criança</th>
-                <th>CPF do Usuário</th>
-                <th>CPF da Criança</th>
-                <th>CPF do Psicólogo</th>
-                <th>Nome do Psicólogo</th>
-                <th>Telefone</th>
-                <th>Data</th>
-                <th>Relatório</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((report) => (
-                <tr key={report.id}>
-                  <td>{report.id}</td>
-                  <td>{report.name_child}</td>
-                  <td>{report.cpf_user}</td>
-                  <td>{report.cpf_child}</td>
-                  <td>{report.cpf_psychologist}</td>
-                  <td>{report.nome_psychologist}</td>
-                  <td>{report.cellphone_number}</td>
-                  <td>{new Date(report.data).toLocaleString('pt-BR')}</td>
-                  <td>{report.report}</td>
+          <div style={{ overflowX: 'auto' }}>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                marginTop: '20px',
+                tableLayout: 'fixed'
+              }}
+              border={1}
+            >
+              <colgroup>
+                <col style={{ width: '40px' }} />
+                <col style={{ width: '140px' }} />
+                <col style={{ width: '120px' }} />
+                <col style={{ width: '120px' }} />
+                <col style={{ width: '120px' }} />
+                <col style={{ width: '160px' }} />
+                <col style={{ width: '120px' }} />
+                <col style={{ width: '140px' }} />
+                <col style={{ width: '300px' }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome da Criança</th>
+                  <th>CPF do Usuário</th>
+                  <th>CPF da Criança</th>
+                  <th>CPF do Psicólogo</th>
+                  <th>Nome do Psicólogo</th>
+                  <th>Telefone</th>
+                  <th>Data</th>
+                  <th>Relatório</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {reports.map((report) => (
+                  <tr key={report.id}>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{report.id}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{report.name_child}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{report.cpf_user}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{report.cpf_child}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{report.cpf_psychologist}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{report.nome_psychologist}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>{report.cellphone_number}</td>
+                    <td style={{ wordBreak: 'break-word', textAlign: 'center' }}>
+                      {report.data ? new Date(report.data).toLocaleString('pt-BR') : ''}
+                    </td>
+                    <td style={{ wordBreak: 'break-word', maxWidth: 300 }}>{report.report}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           !loading && <p style={{ color: '#888' }}>Nenhuma recomendação foi encontrada.</p>
         )}
         {responseMessage && (
           <div
             style={{
-              marginTop: '1rem',
-              color: responseMessage.toLowerCase().includes('erro') ? 'red' : 'green',
-              textAlign: 'center'
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 2000,
+              minWidth: 260,
+              maxWidth: 400,
+              color: responseMessage.toLowerCase().includes('erro') ? '#d32f2f' : '#388e3c',
+              background: responseMessage.toLowerCase().includes('erro') ? '#ffebee' : '#e8f5e9',
+              border: responseMessage.toLowerCase().includes('erro') ? '1.5px solid #d32f2f' : '1.5px solid #388e3c',
+              borderRadius: 12,
+              padding: '1.2rem 2rem',
+              textAlign: 'center',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+              transition: 'opacity 0.3s'
             }}
           >
             {responseMessage}
