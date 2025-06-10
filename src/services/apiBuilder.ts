@@ -7,7 +7,7 @@ export function setAPIClient(ctx = undefined){
     let cookies = parseCookies(ctx);
 
     const api = axios.create({
-        baseURL: 'http://localhost:3333',
+        baseURL: 'https://poap-backend.onrender.com',
         headers: {
             Authorization: `Bearer ${cookies['@sistemasaude.token']}`
         }
